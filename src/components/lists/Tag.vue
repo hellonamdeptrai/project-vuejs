@@ -1,0 +1,26 @@
+<template>
+  <div class="tag" style="background-color: red">Hihi</div>
+</template>
+
+<script>
+export default {
+  name: "Home",
+  components: {
+    //
+  },
+};
+</script>
+
+<style scoped lang="scss">
+.tag {
+  border-radius: 5px;
+  padding: 0 10px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: white;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>

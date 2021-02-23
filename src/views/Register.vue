@@ -1,94 +1,33 @@
 <template>
   <div class="wrap">
-    <h2>Đăng ký tài khoản</h2>
-    
+    <div class="logo">
+      <img src="../assets/images/LogoMakr-2rdE5H.png" alt="" />
+    </div>
     <el-form
-      :model="dynamicValidateForm"
-      ref="dynamicValidateForm"
-      style="width: 100%"
+      :model="ruleForm"
+      :rules="rules"
+      ref="ruleForm"
     >
-      <el-form-item
-        prop="email"
-        :rules="[
-          {
-            required: true,
-            message: 'Email không được để trống',
-            trigger: 'change',
-          },
-          {
-            type: 'email',
-            message: 'Vui lòng nhập đúng định dạng email',
-            trigger: ['blur', 'change'],
-          },
-        ]"
-      >
-        <el-input
-          placeholder="Email"
-          v-model="dynamicValidateForm.email"
-        ></el-input>
+      <el-form-item prop="name">
+        <el-input type="text" placeholder="Họ tên" v-model="ruleForm.name"></el-input>
       </el-form-item>
-      <el-form-item
-        prop="email"
-        :rules="[
-          {
-            required: true,
-            message: 'Tên không được để trống',
-            trigger: 'change',
-          }
-        ]"
-      >
-        <el-input
-          placeholder="Họ tên"
-          v-model="dynamicValidateForm.name"
-        ></el-input>
+      <el-form-item prop="email">
+        <el-input type="email" placeholder="Email" v-model="ruleForm.email"></el-input>
       </el-form-item>
-      <el-form-item
-        prop="password"
-        :rules="[
-          {
-            required: true,
-            message: 'Mật khẩu không được để trống',
-            trigger: 'change',
-          },
-        ]"
-      >
-        <el-input
-          placeholder="Mật khẩu"
-          type="password"
-          v-model="dynamicValidateForm.password"
-        ></el-input>
+      <el-form-item prop="password">
+        <el-input type="password" placeholder="Mật khẩu" v-model="ruleForm.password"></el-input>
       </el-form-item>
-      <el-form-item
-        prop="password"
-        :rules="[
-          {
-            required: true,
-            message: 'Mật khẩu không được để trống',
-            trigger: 'change',
-          },
-        ]"
-      >
-        <el-input
-          placeholder="Xác nhận mật khẩu"
-          type="password"
-          v-model="dynamicValidateForm.password2"
-        ></el-input>
+      <el-form-item prop="confirmPassword">
+        <el-input type="password" placeholder="Xác nhận mật khẩu" v-model="ruleForm.confirmPassword"></el-input>
       </el-form-item>
-      <el-form-item>
-        <el-button
-          style="width: 100%"
-          type="primary"
-          :plain="true"
-          @click="submitForm('dynamicValidateForm')"
+      <el-form-item class="submit-login">
+        <el-button type="success" round @click="submitForm('ruleForm')"
           >Đăng ký</el-button
         >
       </el-form-item>
-      <el-button
-        type="text"
-        @click="login()"
-        style="margin-left: 120px; margin-bottom: 25px"
-        ><i class="el-icon-back"></i>Trở về trang đăng nhập</el-button
-      >
+      <div class="login">
+        <el-button type="text" @click="login()">Đăng nhập</el-button>
+      </div>
     </el-form>
   </div>
 </template>
@@ -97,12 +36,61 @@
 export default {
   data() {
     return {
-      check: true,
-      dynamicValidateForm: {
-        email: "",
+      ruleForm: {
         name: "",
+        email: "",
         password: "",
-        password2: ""
+        confirmPassword: ""
+      },
+      rules: {
+        name: [
+          {
+            required: true,
+            message: "Họ tên không được để trống",
+            trigger: "change",
+          },
+          {
+            min: 2,
+            message: 'Họ tên phải lớn hơn 2 ký tự',
+            trigger: 'change'
+          }
+        ],
+        email: [
+          {
+            required: true,
+            message: "Email không được để trống",
+            trigger: "change",
+          },
+          {
+            type: 'email',
+            message: 'Vui lòng nhập đúng định dạng email',
+            trigger: ['blur', 'change'],
+          }
+        ],
+        password: [
+          {
+            required: true,
+            message: "Mật khẩu không được để trống",
+            trigger: "change",
+          },
+          {
+            min: 6,
+            message: 'Mật khẩu phải lớn hơn 6 ký tự',
+            trigger: 'change'
+          }
+        ],
+        confirmPassword: [
+          {
+            required: true,
+            message: "Xác nhận mật khẩu không được để trống",
+            trigger: "change",
+          },
+          {
+            min: 6,
+            message: 'Xác nhận mật khẩu phải lớn hơn 6 ký tự',
+            trigger: 'change'
+          }
+        ],
       },
     };
   },
@@ -112,31 +100,13 @@ export default {
         if (valid) {
           this.$router.push({ path: "home" });
         } else {
-          console.log("Lỗi đăng ký!!");
-          return false;
-        }
-      });
-    },
-    submitForm2(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.$message({
-            showClose: true,
-            message: "Gửi email thành công",
-            type: "success",
-          });
-        } else {
-          this.$message({
-            showClose: true,
-            message: "Gửi không thành công",
-            type: "error",
-          });
+          this.$message.error('Lỗi, vui lòng kiểm tra lại');
           return false;
         }
       });
     },
     login() {
-      this.$router.push({ path: '/'})
+      this.$router.push({ path: "/" });
     },
   },
 };
@@ -144,9 +114,8 @@ export default {
 
 <style scoped lang="scss">
 .wrap {
-  width: 444px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 30px;
   overflow: hidden;
   display: -webkit-box;
   display: -webkit-flex;
@@ -154,8 +123,8 @@ export default {
   display: -ms-flexbox;
   display: flex;
   flex-wrap: wrap;
-  //justify-content: space-between;
-  padding: 24px;
+  padding: 30px;
+  box-shadow: 0 0 50px 10px gainsboro;
   .logo {
     width: 100%;
     text-align: center;
@@ -165,13 +134,18 @@ export default {
       display: inline-block;
     }
   }
-  h2 {
-    margin-left: 100px;
-    margin-bottom: 30px;
+  .el-form {
+    width: 100%;
+    .submit-login {
+      display: flex; 
+      justify-content: space-between;
+      padding-top: 20px;
+      margin-bottom: 0;
+    }
   }
-  p {
-    margin-top: 10px;
-    padding-bottom: 5px;
+  .login{
+    display: flex; 
+    justify-content: flex-end;
   }
 }
 </style>

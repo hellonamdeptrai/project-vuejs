@@ -25,5 +25,6 @@
   padding: 0;
   margin: 0;
   border: none;
+  font-family: Arial, Helvetica, sans-serif;
 }
 </style>

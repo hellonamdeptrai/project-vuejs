@@ -2,7 +2,9 @@
   <el-container>
     <el-header style="height: auto">
       <el-row>
-        <el-col :span="12"> Logo</el-col>
+        <el-col :span="12" class="logo">
+          <img src="../assets/images/LogoMakr-2rdE5H.png" alt="" />
+        </el-col>
         <el-col :span="12" class="user">
           <div style="margin-left: auto">
             <el-dropdown trigger="click">
@@ -41,7 +43,7 @@ export default {
 
 <style scoped lang="scss">
 .el-container {
-  background-image: url("../assets/images/pexels-irina-iriser-2781760.jpg");
+  background-image: url("../assets/images/bg-home.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -54,9 +56,18 @@ export default {
   .el-header {
     background-color: rgba(0, 0, 0, 0.32);
     padding: 5px;
+    .logo {
+      img {
+        width: 99px;
+      }
+    }
     .user {
       display: flex;
     }
+  }
+  .el-main {
+    position: relative;
+    padding: 0;
   }
 }
 </style>

@@ -32,11 +32,11 @@ export default {
     justify-content: center;
     align-items: center;
     padding: 15px;
-    //background: #0093e9;
-    background-image: url("../assets/images/pexels-irina-iriser-2781760.jpg");
+    background-image: url("../assets/images/bg-lg.jpg");
     background-position: center;
     background-repeat:no-repeat;
     background-size: cover;
+    
   }
 }
 </style>
