@@ -33,6 +33,10 @@ const routes = [
       {
         path: 'user',
         component: () => import('../views/User')
+      },
+      {
+        path: 'changepassword',
+        component: () => import('../views/ChangePassword')
       }
     ]
   },
