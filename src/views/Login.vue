@@ -3,16 +3,20 @@
     <div class="logo">
       <img src="../assets/images/LogoMakr-2rdE5H.png" alt="" />
     </div>
-    <el-form
-      :model="ruleForm"
-      :rules="rules"
-      ref="ruleForm"
-    >
+    <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
       <el-form-item prop="email">
-        <el-input type="email" placeholder="Email" v-model="ruleForm.email"></el-input>
+        <el-input
+          type="email"
+          placeholder="Email"
+          v-model="ruleForm.email"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input type="password" placeholder="Mật khẩu" v-model="ruleForm.password"></el-input>
+        <el-input
+          type="password"
+          placeholder="Mật khẩu"
+          v-model="ruleForm.password"
+        ></el-input>
       </el-form-item>
       <el-form-item class="submit-login">
         <el-button type="success" round @click="submitForm('ruleForm')"
@@ -27,48 +31,80 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
+import axios from "axios";
+
 export default {
+  name: 'Login',
   data() {
     return {
       ruleForm: {
         email: "",
-        password: ""
+        password: "",
       },
       rules: {
         email: [
           {
             required: true,
             message: "Email không được để trống",
-            trigger: "change",
+            trigger: 'blur',
           },
           {
-            type: 'email',
-            message: 'Vui lòng nhập đúng định dạng email',
-            trigger: ['blur', 'change'],
-          }
+            type: "email",
+            message: "Vui lòng nhập đúng định dạng email",
+            trigger: 'blur',
+          },
         ],
         password: [
           {
             required: true,
             message: "Mật khẩu không được để trống",
-            trigger: "change",
+            trigger: 'blur',
           },
           {
             min: 6,
-            message: 'Mật khẩu phải lớn hơn 6 ký tự',
-            trigger: 'change'
-          }
+            message: "Mật khẩu phải lớn hơn 6 ký tự",
+            trigger: 'blur',
+          },
         ],
       },
     };
   },
+  computed: {
+    ...mapState("auth", ["isAuthenticated"]),
+  },
   methods: {
+    ...mapMutations("auth", ["changeLoginStatus"]),
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$router.push({ path: "home" });
+          axios({
+            method: "post",
+            url: "http://vuecourse.zent.edu.vn/api/auth/login",
+            data: {
+              email: this.ruleForm.email,
+              password: this.ruleForm.password,
+            },
+          })
+            .then((response) => {
+              this.$message({
+                message: "Đăng nhập thành công!",
+                type: "success",
+              });
+              localStorage.setItem("access_token", response.data.access_token);
+              this.changeLoginStatus({ isAuthenticated: true, authUser: {} });
+              if (this.$router.currentRoute.name !== "Home") {
+                this.$router.push({ name: "Home" });
+              }
+            })
+            .catch(() => {
+              this.$message({
+                message: "Sai thông tin đăng nhập!",
+                type: "error",
+              });
+            });
         } else {
-          this.$message.error('Lỗi, vui lòng kiểm tra lại');
+          this.$message.error("Lỗi, vui lòng kiểm tra lại");
           return false;
         }
       });
@@ -105,14 +141,14 @@ export default {
   .el-form {
     width: 100%;
     .submit-login {
-      display: flex; 
+      display: flex;
       justify-content: space-between;
       padding-top: 20px;
       margin-bottom: 0;
     }
   }
-  .register{
-    display: flex; 
+  .register {
+    display: flex;
     justify-content: flex-end;
   }
 }

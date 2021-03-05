@@ -14,7 +14,7 @@
                   <el-button @click="user()" type="text">Cài đặt</el-button>
                 </el-dropdown-item>
                 <el-dropdown-item divided icon="el-icon-close">
-                  <el-button @click="logout()" type="text">Đăng xuất</el-button>
+                  <el-button @click="handleLogout()" type="text">Đăng xuất</el-button>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -29,15 +29,55 @@
 </template>
 
 <script>
+import {mapState, mapMutations } from 'vuex'
+import axios from 'axios'
+
 export default {
-  methods: {
-    user() {
-      this.$router.push({ path: "/home/user" });
+  computed: {
+      ...mapState('auth', ['isAuthenticated']),
     },
-    logout() {
-      this.$router.push({ path: "/" });
+  methods: {
+    ...mapMutations('auth', ['changeLoginStatus']),
+      async handleLogout() {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('vuex')
+        this.changeLoginStatus({
+          isAuthenticated: false,
+          authUser: {},
+        })
+        if (this.$router.currentRoute.name !== 'Login') {
+          await this.$router.push({ name: 'Login' })
+        }
+      },
+    user() {
+      this.$router.push({ name: "User" });
     }
   },
+  mounted() {
+      axios({
+        method: 'get',
+        url: 'http://vuecourse.zent.edu.vn/api/auth/me',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      }).then((response) => {
+        this.changeLoginStatus({
+          isAuthenticated: true,
+          authUser: response.data,
+        })
+      }).catch((error) => {
+        if (error.response.status === 401) {
+          this.changeLoginStatus({
+            isAuthenticated: false,
+            authUser: {},
+          })
+          localStorage.removeItem('access_token')
+          if (this.$router.currentRoute.name !== 'Login') {
+            this.$router.push({ name: 'Login' })
+          }
+        }
+      })
+    }
 };
 </script>
 

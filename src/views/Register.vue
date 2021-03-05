@@ -3,22 +3,34 @@
     <div class="logo">
       <img src="../assets/images/LogoMakr-2rdE5H.png" alt="" />
     </div>
-    <el-form
-      :model="ruleForm"
-      :rules="rules"
-      ref="ruleForm"
-    >
+    <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
       <el-form-item prop="name">
-        <el-input type="text" placeholder="Họ tên" v-model="ruleForm.name"></el-input>
+        <el-input
+          type="text"
+          placeholder="Họ tên"
+          v-model="ruleForm.name"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="email">
-        <el-input type="email" placeholder="Email" v-model="ruleForm.email"></el-input>
+        <el-input
+          type="email"
+          placeholder="Email"
+          v-model="ruleForm.email"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="password">
-        <el-input type="password" placeholder="Mật khẩu" v-model="ruleForm.password"></el-input>
+        <el-input
+          type="password"
+          placeholder="Mật khẩu"
+          v-model="ruleForm.password"
+        ></el-input>
       </el-form-item>
       <el-form-item prop="confirmPassword">
-        <el-input type="password" placeholder="Xác nhận mật khẩu" v-model="ruleForm.confirmPassword"></el-input>
+        <el-input
+          type="password"
+          placeholder="Xác nhận mật khẩu"
+          v-model="ruleForm.confirmPassword"
+        ></el-input>
       </el-form-item>
       <el-form-item class="submit-login">
         <el-button type="success" round @click="submitForm('ruleForm')"
@@ -33,6 +45,9 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -40,67 +55,99 @@ export default {
         name: "",
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
       },
       rules: {
         name: [
           {
             required: true,
             message: "Họ tên không được để trống",
-            trigger: "change",
+            trigger: "blur",
           },
           {
             min: 2,
-            message: 'Họ tên phải lớn hơn 2 ký tự',
-            trigger: 'change'
-          }
+            message: "Họ tên phải lớn hơn 2 ký tự",
+            trigger: "blur",
+          },
         ],
         email: [
           {
             required: true,
             message: "Email không được để trống",
-            trigger: "change",
+            trigger: "blur",
           },
           {
-            type: 'email',
-            message: 'Vui lòng nhập đúng định dạng email',
-            trigger: ['blur', 'change'],
-          }
+            type: "email",
+            message: "Vui lòng nhập đúng định dạng email",
+            trigger: "blur",
+          },
         ],
         password: [
           {
             required: true,
             message: "Mật khẩu không được để trống",
-            trigger: "change",
+            trigger: "blur",
           },
           {
             min: 6,
-            message: 'Mật khẩu phải lớn hơn 6 ký tự',
-            trigger: 'change'
-          }
+            message: "Mật khẩu phải lớn hơn 6 ký tự",
+            trigger: "blur",
+          },
         ],
         confirmPassword: [
           {
             required: true,
             message: "Xác nhận mật khẩu không được để trống",
-            trigger: "change",
+            trigger: "blur",
           },
           {
             min: 6,
-            message: 'Xác nhận mật khẩu phải lớn hơn 6 ký tự',
-            trigger: 'change'
-          }
+            message: "Xác nhận mật khẩu phải lớn hơn 6 ký tự",
+            trigger: "blur",
+          },
         ],
       },
     };
   },
+  computed: {
+    ...mapState("auth", ["isAuthenticated"]),
+  },
   methods: {
+    ...mapMutations("auth", ["changeLoginStatus"]),
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$router.push({ path: "home" });
+          if (this.ruleForm.password !== this.ruleForm.confirmPassword) {
+            this.$message({
+              message: "Xác nhận mật khẩu không khớp, vui lòng kiểm tra lại!",
+              type: "error",
+            });
+          } else {
+            axios({
+              method: "post",
+              url: "http://vuecourse.zent.edu.vn/api/auth/register",
+              data: {
+                name: this.ruleForm.name,
+                email: this.ruleForm.email,
+                password: this.ruleForm.confirmPassword,
+              },
+            })
+              .then(() => {
+                this.$message({
+                  message: "Đăng ký thành công!",
+                  type: "success",
+                });
+                this.$router.push({ name: "Login" });
+              })
+              .catch(() => {
+                this.$message({
+                  message: "Đăng ký không thành công!",
+                  type: "error",
+                });
+              });
+          }
         } else {
-          this.$message.error('Lỗi, vui lòng kiểm tra lại');
+          this.$message.error("Lỗi, vui lòng kiểm tra lại");
           return false;
         }
       });
@@ -137,14 +184,14 @@ export default {
   .el-form {
     width: 100%;
     .submit-login {
-      display: flex; 
+      display: flex;
       justify-content: space-between;
       padding-top: 20px;
       margin-bottom: 0;
     }
   }
-  .login{
-    display: flex; 
+  .login {
+    display: flex;
     justify-content: flex-end;
   }
 }
