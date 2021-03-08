@@ -2,26 +2,26 @@
   <div class="list">
     <div class="list-content" data-simplebar-auto-hide="false">
       <div class="title">
-        <el-row>
-          <el-col :span="18">
-            <p class="title-text" v-if="titleClick" @click="clickTitleNode()">
+        <div class="title-col">
+          <div class="title-text">
+            <p v-if="titleClick" @click="clickTitleNode()">
               Đang làm
             </p>
-            <textarea v-else v-model="textarea1" autofocus @focusout="outTitleNode()"></textarea>
-            <!-- <el-input
+            <el-input
               v-else
-              type="text"
-              @focusout="outTitleNode()"
+              type="textarea"
+              @focusout.native="outTitleNode()"
               autosize
+              autofocus
               v-model="textarea1"
-            ></el-input> -->
-          </el-col>
-          <el-col :span="1">
-            <el-button class="list-delete" type="text" @click="open"
+            ></el-input>
+          </div>
+          <div class="list-delete">
+            <el-button type="text" @click="deleteList"
               ><i class="el-icon-delete"></i
             ></el-button>
-          </el-col>
-        </el-row>
+          </div>
+        </div>
       </div>
       <div class="content">
           <ContentList/>
@@ -30,11 +30,28 @@
           <ContentList/>
           <ContentList/>
           <ContentList/>
+          <div class="add-new-list">
+            <el-input
+              id="inputaddlist"
+              v-if="addNewListCheck"
+              type="textarea"
+              autosize
+              autofocus
+              placeholder="Nhập tiêu đề cho thẻ này"
+              v-model="addList"
+              @keyup.enter.native="addNewListCompalete"
+              @focusout.native="addNewListCompalete"
+            ></el-input>
+          </div>
       </div>
-      <div class="add-note">
-        <el-button type="text"
+      <div v-if="!addNewListCheck" class="add-note">
+        <el-button type="text" @click="addNewList"
           ><i class="el-icon-plus"></i> Thêm thẻ khác</el-button
         >
+      </div>
+      <div v-else class="add-note-text-button">
+        <el-button @click="addNewListCompalete" type="success" size="small">Thêm thẻ</el-button>
+        <i @click="closeAddNote" class="el-icon-close"></i>
       </div>
     </div>
   </div>
@@ -52,6 +69,8 @@ export default {
     return {
       titleClick: true,
       textarea1: 'Đang làm',
+      addList: '',
+      addNewListCheck: false,
     };
   },
   methods: {
@@ -61,7 +80,18 @@ export default {
     outTitleNode() {
       this.titleClick = true;
     },
-    open() {
+    addNewList() {
+      this.addNewListCheck = true;
+      let container = this.$el.querySelector(".content");
+      container.scrollTop = container.scrollHeight;
+    },
+    addNewListCompalete() {
+      this.addNewListCheck = false
+    },
+    closeAddNote() {
+      this.addNewListCheck = false
+    },
+    deleteList() {
       this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
         confirmButtonText: "OK",
         cancelButtonText: "Hủy",
@@ -110,16 +140,20 @@ export default {
       background-color: #ebecf0;
       width: 100%;
       border-radius: 10px 10px 0 0;
-      .el-col {
-        margin: 10px 0 10px 10px;
+      .title-col {
+        margin: 10px;
+        display: flex;
+        justify-content: space-between;
         .title-text {
-          padding: 5px 0 0 5px;
+          width: 100%;
+          padding: 5px 10px 0 5px;
           font-weight: bold;
           font-size: 14px;
         }
         .list-delete {
-          margin-left: 3px;
-          padding: 5px 0 0 5px;
+          .el-button {
+            padding: 5px 5px 0 0;
+          }
         }
       }
     }
@@ -128,6 +162,9 @@ export default {
       overflow-x: hidden;
       overflow-y: auto;
       background-color: #ebecf0;
+      .add-new-list {
+        padding: 0 5px 0 10px;
+      }
     }
     .content::-webkit-scrollbar {
       width: 8px;
@@ -149,6 +186,18 @@ export default {
       .el-button {
         margin-left: 10px;
       }
+    }
+    .add-note-text-button {
+      display: flex;
+    align-items: center;
+    background-color: #ebecf0;
+      border-radius: 0 0 10px 10px;
+      padding: 10px;
+    i {
+    margin-left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+  }
     }
   }
 }

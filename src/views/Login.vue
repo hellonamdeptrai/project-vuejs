@@ -16,6 +16,7 @@
           type="password"
           placeholder="Mật khẩu"
           v-model="ruleForm.password"
+          @keyup.enter.native="submitForm('ruleForm')"
         ></el-input>
       </el-form-item>
       <el-form-item class="submit-login">
