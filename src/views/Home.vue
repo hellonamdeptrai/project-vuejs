@@ -1,12 +1,14 @@
 <template>
-  <div class="home" data-simplebar-auto-hide="false">
-    <List v-for="(list, index) in lists" :key="index"/>
-    <div v-if="checkClickAdd" class="add-new-list">
+  <draggable  class="home">
+    <div class="divList" v-for="(list, index) in lists" :key="index">
+      <List :list="list"/>
+    </div>
+    <div slot="footer" v-if="checkClickAdd" class="add-new-list">
       <el-button type="text" @click="clickAdd"
         ><i class="el-icon-plus"></i> Thêm danh sách khác</el-button
       >
     </div>
-    <div v-else class="add-new-list-text">
+    <div slot="footer" v-else class="add-new-list-text">
       <div class="add-new-list-text-input">
         <el-input @keyup.enter.native="addNewList" @focusout.native="clickAddOut" placeholder="Nhập tiêu đề danh sách..." v-model="addList"></el-input>
       </div>
@@ -15,37 +17,45 @@
         <i @click="clickAddOut" class="el-icon-close"></i>
       </div>
     </div>
-  </div>
+  </draggable>
 </template>
 
 <script>
 import List from "../components/lists/List";
 import axios from "axios";
+import { mapState, mapMutations } from "vuex";
+import draggable from 'vuedraggable'
 
 export default {
   name: "Home",
   components: {
     List,
+    draggable
   },
   data () {
     return {
-      lists: [],
       addList: '',
-      checkClickAdd: true,
     }
   },
+  computed: {
+    ...mapState("home", ['lists','checkClickAdd']),
+  },
   methods: {
+    ...mapMutations("home", ["setCheckClickAdd",'setLists']),
     clickAdd() {
-      this.checkClickAdd = false
+      this.setCheckClickAdd(false)
     },
     addNewList() {
-      this.checkClickAdd = true;
+      this.setCheckClickAdd(true);
       axios({
         method: "post",
         url: "http://vuecourse.zent.edu.vn/api/directories",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        },
         data: {
           title: this.addList,
-          index: this.lists.length
+          index: this.lists.length+1
         }
       })
         .then(() => {
@@ -57,15 +67,19 @@ export default {
         });
     },
     clickAddOut() {
-      this.checkClickAdd = true
+      this.setCheckClickAdd(true);
     },
     getdirectories() {
       axios({
         method: "get",
         url: "http://vuecourse.zent.edu.vn/api/directories",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
       })
         .then((response) => {
-          this.lists = response.data.data.data;
+          // console.log(response)
+          this.setLists(response.data.data);
         })
         .catch((error) => {
           console.log(error);
@@ -93,6 +107,16 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
+  .divList{
+    width: 272px;
+    margin: 0 8px;
+    height: 100%;
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+    white-space: nowrap;
+    position: relative;
+  }
 }
 /* width */
 .home::-webkit-scrollbar {

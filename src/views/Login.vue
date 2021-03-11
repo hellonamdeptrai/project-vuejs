@@ -75,7 +75,7 @@ export default {
     ...mapState("auth", ["isAuthenticated"]),
   },
   methods: {
-    ...mapMutations("auth", ["changeLoginStatus"]),
+    ...mapMutations("auth", ["changeLoginStatus","updateToken"]),
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -93,6 +93,7 @@ export default {
                 type: "success",
               });
               localStorage.setItem("access_token", response.data.access_token);
+              this.updateToken(response.data.access_token)
               this.changeLoginStatus({ isAuthenticated: true, authUser: {} });
               if (this.$router.currentRoute.name !== "Home") {
                 this.$router.push({ name: "Home" });

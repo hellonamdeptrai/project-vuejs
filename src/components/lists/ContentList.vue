@@ -7,9 +7,7 @@
     </div>
     <div class="content-text" type="text" @click="dialogFormVisible = true">
       <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio velit
-        aliquid nemo voluptas odit quia officiis alias. Dolorum non accusamus
-        velit rem dolore eaque modi aliquam. Natus delectus facilis corporis?
+        {{ card.title }}
       </p>
     </div>
     <div class="content-end">
@@ -76,40 +74,56 @@
           <div class="menu-detail">
             <p class="title-tag-detail">THÊM VÀO THẺ</p>
             <div class="title-tag-detail-button">
-              <el-popover class="labels" placement="bottom" width="400" trigger="click">
-              
-              <el-button class="button-detail-add-tag" slot="reference">
-                <i class="el-icon-price-tag"></i>
-                Nhãn
-              </el-button>
-            </el-popover>
+              <el-popover
+                class="labels"
+                placement="bottom"
+                width="400"
+                trigger="click"
+              >
+                <el-button class="button-detail-add-tag" slot="reference">
+                  <i class="el-icon-price-tag"></i>
+                  Nhãn
+                </el-button>
+              </el-popover>
             </div>
             <div class="title-tag-detail-button">
-              <el-popover class="labels" placement="bottom" width="400" trigger="click">
-              
-              <el-button class="button-detail-add-tag" slot="reference">
-                <i class="el-icon-document-checked"></i>
-                Việc cần làm
-              </el-button>
-            </el-popover>
+              <el-popover
+                class="labels"
+                placement="bottom"
+                width="400"
+                trigger="click"
+              >
+                <el-button class="button-detail-add-tag" slot="reference">
+                  <i class="el-icon-document-checked"></i>
+                  Việc cần làm
+                </el-button>
+              </el-popover>
             </div>
             <div class="title-tag-detail-button">
-              <el-popover class="labels" placement="bottom" width="400" trigger="click">
-              
-              <el-button class="button-detail-add-tag" slot="reference">
-                <i class="el-icon-time"></i>
-                Ngày hết hạn
-              </el-button>
-            </el-popover>
+              <el-popover
+                class="labels"
+                placement="bottom"
+                width="400"
+                trigger="click"
+              >
+                <el-button class="button-detail-add-tag" slot="reference">
+                  <i class="el-icon-time"></i>
+                  Ngày hết hạn
+                </el-button>
+              </el-popover>
             </div>
             <div class="title-tag-detail-button">
-              <el-popover class="labels" placement="bottom" width="400" trigger="click">
-              
-              <el-button class="button-detail-add-tag" slot="reference">
-                <i class="el-icon-files"></i>
-                Đính kèm
-              </el-button>
-            </el-popover>
+              <el-popover
+                class="labels"
+                placement="bottom"
+                width="400"
+                trigger="click"
+              >
+                <el-button class="button-detail-add-tag" slot="reference">
+                  <i class="el-icon-files"></i>
+                  Đính kèm
+                </el-button>
+              </el-popover>
             </div>
           </div>
         </el-col>
@@ -138,6 +152,7 @@ import Tag from "../lists/Tag";
 
 export default {
   name: "Home",
+  props: ['card'],
   components: {
     Tag,
   },
@@ -160,43 +175,38 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.content-body {
-  width: 100%;
+.content-tag {
   display: flex;
-  flex-direction: column;
-  .content-tag {
-    display: flex;
-    flex-wrap: wrap;
-    background-color: #fff;
-    border-radius: 10px 10px 0 0;
-    margin-left: 10px;
-    margin-right: 5px;
-    padding: 10px;
-  }
-  .content-text {
-    background-color: #fff;
-    margin-left: 10px;
-    margin-right: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
+  flex-wrap: wrap;
+  background-color: #fff;
+  border-radius: 10px 10px 0 0;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px;
+}
+.content-text {
+  background-color: #fff;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 14px;
+}
+.content-end {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: #fff;
+  border-radius: 0 0 10px 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 10px;
+  .content-end-detail {
+    border-radius: 5px;
+    padding: 5px;
+    margin-right: 4px;
+    margin-bottom: 4px;
     font-size: 14px;
-  }
-  .content-end {
-    display: flex;
-    flex-wrap: wrap;
-    background-color: #fff;
-    border-radius: 0 0 10px 10px;
-    margin-bottom: 10px;
-    margin-left: 10px;
-    margin-right: 5px;
-    padding: 10px;
-    .content-end-detail {
-      border-radius: 5px;
-      padding: 5px;
-      margin-right: 4px;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
   }
 }
 </style>
