@@ -24,7 +24,7 @@
           </div>
         </div>
       </div>
-      <draggable class="content" group="people">
+      <draggable :animation="100" class="content" group="people">
         <div class="content-body" v-for="(card, index) in cards" :key="index">
           <ContentList :card="card"/>
         </div>
@@ -239,6 +239,7 @@ export default {
       width: 100%;
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
     .add-new-list {
       padding: 0 10px 0 10px;

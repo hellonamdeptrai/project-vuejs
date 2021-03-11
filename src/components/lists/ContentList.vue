@@ -1,11 +1,11 @@
 <template>
-  <div class="content-body">
+  <div @click="dialogFormVisible = true">
     <div class="content-tag">
       <Tag />
       <Tag />
       <Tag />
     </div>
-    <div class="content-text" type="text" @click="dialogFormVisible = true">
+    <div class="content-text" type="text">
       <p>
         {{ card.title }}
       </p>
@@ -64,6 +64,88 @@
                     Maiores eligendi sed quisquam consequuntur sint rerum.
                     Adipisci sequi id tempora eos sunt beatae, omnis vitae
                     mollitia aperiam rem quo nesciunt ab.
+                  </div>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="magin-mission">
+            <el-col :span="2" style="font-size: 1px"> . </el-col>
+            <el-col :span="22">
+              <div class="tag-detail">
+                <p class="title-tag-detail">NGÀY HẾT HẠN</p>
+                <div class="radio-date">
+                  <el-radio v-model="radioDate" label="1">Quá hạn</el-radio>
+                  <el-radio v-model="radioDate" label="2">Hoàn tất</el-radio>
+                  <span>10/1/2021</span>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="magin-mission">
+            <el-col :span="2" style="font-size: 24px"
+              ><i class="el-icon-document"></i
+            ></el-col>
+            <el-col :span="22">
+              <div class="note-card">
+                <p class="title-tag-detail">MÔ TẢ</p>
+                <p v-if="titleClickCard" @click="clickTitleCard">hihi haha</p>
+                <el-input
+                  v-else
+                  type="textarea"
+                  @focusout.native="outTitleCard"
+                  autosize
+                  autofocus
+                  v-model="dataTitleCard"
+                ></el-input>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="magin-mission">
+            <el-col :span="2" style="font-size: 24px"
+              ><i class="el-icon-files"></i
+            ></el-col>
+            <el-col :span="22">
+              <div class="note-card">
+                <p class="title-tag-detail">TẬP TIN ĐÍNH KÈM</p>
+                <el-row :gutter="20">
+                  <el-col :span="12">
+                    <el-image src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"></el-image>
+                    <el-button type="text" @click="deleteFile"
+              >Loại bỏ</el-button>
+                  </el-col>
+                </el-row>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="magin-mission">
+            <el-col :span="2" style="font-size: 24px"
+              ><i class="el-icon-document-checked"></i
+            ></el-col>
+            <el-col :span="22">
+              <div class="note-card">
+                <p class="title-tag-detail">VIỆC CẦN LÀM</p>
+                <div>
+                  <el-progress class="margin-checklist" :percentage="50"></el-progress>
+                  <el-checkbox class="margin-checklist" v-model="checkList">
+                    <del v-if="checkList">hihi</del>
+                    <span v-else>hihi</span>
+                  </el-checkbox>
+                </div>
+                <div>
+                  <el-button v-if="checkNoteCard" size="medium" plain @click="clickNoteCard">Thêm một mục</el-button>
+                  <div v-else>
+                    <el-input
+                    type="textarea"
+                    @focusout.native="outNoteCard"
+                    autosize
+                    autofocus
+                    v-model="dataNoteCard"
+                  ></el-input>
+                  <div style="margin-top: 10px;">
+                    <el-button size="medium" type="success" @click="addNoteCard">Thêm</el-button>
+                    <el-button size="medium" type="text" @click="outNoteCard"><i class="el-icon-close"></i></el-button>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -152,7 +234,7 @@ import Tag from "../lists/Tag";
 
 export default {
   name: "Home",
-  props: ['card'],
+  props: ["card"],
   components: {
     Tag,
   },
@@ -161,6 +243,12 @@ export default {
       dialogFormVisible: false,
       titleClickCheck: true,
       dataTitle: "sefsfsfs",
+      radioDate: "2",
+      titleClickCard: true,
+      dataTitleCard: "hihi haha",
+      checkList: false,
+      dataNoteCard: '',
+      checkNoteCard: true
     };
   },
   methods: {
@@ -169,6 +257,54 @@ export default {
     },
     outTitleNode() {
       this.titleClickCheck = true;
+    },
+    clickTitleCard() {
+      this.titleClickCard = false;
+    },
+    outTitleCard() {
+      this.titleClickCard = true;
+    },
+    deleteFile() {
+      this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
+        confirmButtonText: "OK",
+        cancelButtonText: "Hủy",
+        type: "warning",
+        center: true,
+      })
+        .then(() => {
+          // axios({
+          //   method: "delete",
+          //   url: "http://vuecourse.zent.edu.vn/api/directories/" + this.list.id,
+          //   headers: {
+          //     Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          //   },
+          // })
+          //   .then(() => {
+          //     this.getdirectories();
+          //   })
+          //   .catch((error) => {
+          //     console.log(error);
+          //   });
+          this.$message({
+            type: "success",
+            message: "Xóa thành công",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "Hủy xóa",
+          });
+        });
+    },
+    clickNoteCard() {
+      this.checkNoteCard = false;
+    },
+    outNoteCard() {
+      this.checkNoteCard = true;
+    },
+    addNoteCard() {
+      //
     },
   },
 };
@@ -267,5 +403,14 @@ export default {
 
 .title-tag-detail-button {
   margin-bottom: 5px;
+}
+
+.magin-mission {
+  margin-bottom: 10px;
+}
+
+.margin-checklist {
+  margin-bottom: 10px;
+  width: 100%;
 }
 </style>

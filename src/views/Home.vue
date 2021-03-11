@@ -1,5 +1,5 @@
 <template>
-  <draggable  class="home">
+  <draggable :animation="100" class="home">
     <div class="divList" v-for="(list, index) in lists" :key="index">
       <List :list="list"/>
     </div>
