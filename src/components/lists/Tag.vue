@@ -1,10 +1,11 @@
 <template>
-  <div class="tag" style="background-color: red">Hihi</div>
+  <div class="tag" :style="{background: label.color }"> {{ label.name }}</div>
 </template>
 
 <script>
 export default {
   name: "Home",
+  props: ['label'],
   components: {
     //
   },

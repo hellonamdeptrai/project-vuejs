@@ -1,9 +1,7 @@
 <template>
-  <div @click="dialogFormVisible = true">
+  <div @click="dialogFormVisible = true,getCards()">
     <div class="content-tag">
-      <Tag />
-      <Tag />
-      <Tag />
+      <Tag v-for="(label, index) in labels" :key="index" :label="label"/>
     </div>
     <div class="content-text" type="text">
       <p>
@@ -35,12 +33,13 @@
         <el-col :span="23">
           <div class="right-title">
             <p v-if="titleClickCheck" @click="clickTitleNode()">
-              kejfhskrf skfsrf skrfhsd
+              {{ cardData.title }}
             </p>
             <el-input
               v-else
               type="textarea"
               @focusout.native="outTitleNode()"
+              @keyup.enter.native="outTitleNode()"
               autosize
               autofocus
               v-model="dataTitle"
@@ -57,14 +56,7 @@
               <div class="tag-detail">
                 <p class="title-tag-detail">NHÃN</p>
                 <div class="tag-detail-tag">
-                  <div style="background-color: red">sdsdf</div>
-                  <div style="background-color: blue">Hihi</div>
-                  <div style="background-color: pink">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Maiores eligendi sed quisquam consequuntur sint rerum.
-                    Adipisci sequi id tempora eos sunt beatae, omnis vitae
-                    mollitia aperiam rem quo nesciunt ab.
-                  </div>
+                  <div v-for="(label, index) in labels" :key="index" :style="{background: label.color }"> {{ label.name }}</div>
                 </div>
               </div>
             </el-col>
@@ -110,9 +102,12 @@
                 <p class="title-tag-detail">TẬP TIN ĐÍNH KÈM</p>
                 <el-row :gutter="20">
                   <el-col :span="12">
-                    <el-image src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"></el-image>
+                    <el-image
+                      src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
+                    ></el-image>
                     <el-button type="text" @click="deleteFile"
-              >Loại bỏ</el-button>
+                      >Loại bỏ</el-button
+                    >
                   </el-col>
                 </el-row>
               </div>
@@ -126,26 +121,42 @@
               <div class="note-card">
                 <p class="title-tag-detail">VIỆC CẦN LÀM</p>
                 <div>
-                  <el-progress class="margin-checklist" :percentage="50"></el-progress>
+                  <el-progress
+                    class="margin-checklist"
+                    :percentage="50"
+                  ></el-progress>
                   <el-checkbox class="margin-checklist" v-model="checkList">
                     <del v-if="checkList">hihi</del>
                     <span v-else>hihi</span>
                   </el-checkbox>
                 </div>
                 <div>
-                  <el-button v-if="checkNoteCard" size="medium" plain @click="clickNoteCard">Thêm một mục</el-button>
+                  <el-button
+                    v-if="checkNoteCard"
+                    size="medium"
+                    plain
+                    @click="clickNoteCard"
+                    >Thêm một mục</el-button
+                  >
                   <div v-else>
                     <el-input
-                    type="textarea"
-                    @focusout.native="outNoteCard"
-                    autosize
-                    autofocus
-                    v-model="dataNoteCard"
-                  ></el-input>
-                  <div style="margin-top: 10px;">
-                    <el-button size="medium" type="success" @click="addNoteCard">Thêm</el-button>
-                    <el-button size="medium" type="text" @click="outNoteCard"><i class="el-icon-close"></i></el-button>
-                  </div>
+                      type="textarea"
+                      @focusout.native="outNoteCard"
+                      autosize
+                      autofocus
+                      v-model="dataNoteCard"
+                    ></el-input>
+                    <div style="margin-top: 10px">
+                      <el-button
+                        size="medium"
+                        type="success"
+                        @click="addNoteCard"
+                        >Thêm</el-button
+                      >
+                      <el-button size="medium" type="text" @click="outNoteCard"
+                        ><i class="el-icon-close"></i
+                      ></el-button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -159,9 +170,135 @@
               <el-popover
                 class="labels"
                 placement="bottom"
-                width="400"
+                width="300"
                 trigger="click"
               >
+                <div v-if="checkAddCard">
+                  <p class="title-tag-detail">NHÃN</p>
+                  <div>
+                    <el-row v-for="(labelsList, index) in labelsLists" :key="index" :gutter="10">
+                      <el-col @click.native="attachLabels(labelsList.id)" :span="21"
+                        ><div
+                          class="tag-content"
+                          :style="{ background: labelsList.color }"
+                        >
+                          <span
+                            >{{ labelsList.name }}</span
+                          >
+                          <i v-for="(label, index) in labels" :key="index" v-show="labelsList.id == label.id" class="el-icon-check"></i>
+                        </div>
+                      </el-col>
+                      <el-col :span="3"
+                        ><el-button
+                          @click="editAttachLabels(labelsList.id,labelsList.name,labelsList.color)"
+                          size="mini"
+                          icon="el-icon-edit"
+                          circle
+                        ></el-button
+                      ></el-col>
+                    </el-row>
+                  </div>
+                  <el-button plain size="medium" @click="addNexCard">Tạo nhãn mới</el-button>
+                </div>
+                <div v-else>
+                  <div v-if="checkAttachLabels">
+                    <div class="add-new-card-input">
+                    <p class="add-new-card-title">Tên</p>
+                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCardData"></el-input>
+                  </div>
+                  <div class="add-new-card-color">
+                    <p class="add-new-card-title">Chọn một màu</p>
+                    <div class="add-new-card-color-box">
+                      <div style="background-color: green">
+                      <input v-model="radioColor" type="radio" name="gender" value="green">
+                    </div>
+                    <div style="background-color: yellow">
+                      <input v-model="radioColor" type="radio" name="gender" value="yellow">
+                    </div>
+                    <div style="background-color: orange">
+                      <input v-model="radioColor" type="radio" name="gender" value="orange">
+                    </div>
+                    <div style="background-color: red">
+                      <input v-model="radioColor" type="radio" name="gender" value="red">
+                    </div>
+                    <div style="background-color: purple">
+                      <input v-model="radioColor" type="radio" name="gender" value="purple">
+                    </div>
+                    <div style="background-color: blue">
+                      <input v-model="radioColor" type="radio" name="gender" value="blue">
+                    </div>
+                    <div style="background-color: aquamarine">
+                      <input v-model="radioColor" type="radio" name="gender" value="aquamarine">
+                    </div>
+                    <div style="background-color: lime">
+                      <input v-model="radioColor" type="radio" name="gender" value="lime">
+                    </div>
+                    <div style="background-color: pink">
+                      <input v-model="radioColor" type="radio" name="gender" value="pink">
+                    </div>
+                    <div style="background-color: black">
+                      <input v-model="radioColor" type="radio" name="gender" value="black">
+                    </div>
+                    <div style="background-color: gray">
+                      <input v-model="radioColor" type="radio" name="gender" value="gray">
+                    </div>
+                    </div>
+                    <div>
+                      <el-button @click="addCard" type="success" size="medium">Tạo mới</el-button>
+                      <el-button type="text" @click="cancalAddCard" size="medium">Thoát</el-button>
+                    </div>
+                  </div>
+                  </div>
+                  <div v-else>
+                    <div class="add-new-card-input">
+                    <p class="add-new-card-title">Tên</p>
+                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCardDataEdit"></el-input>
+                  </div>
+                  <div class="add-new-card-color">
+                    <p class="add-new-card-title">Chọn một màu</p>
+                    <div class="add-new-card-color-box">
+                      <div style="background-color: green">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="green">
+                    </div>
+                    <div style="background-color: yellow">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="yellow">
+                    </div>
+                    <div style="background-color: orange">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="orange">
+                    </div>
+                    <div style="background-color: red">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="red">
+                    </div>
+                    <div style="background-color: purple">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="purple">
+                    </div>
+                    <div style="background-color: blue">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="blue">
+                    </div>
+                    <div style="background-color: aquamarine">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="aquamarine">
+                    </div>
+                    <div style="background-color: lime">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="lime">
+                    </div>
+                    <div style="background-color: pink">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="pink">
+                    </div>
+                    <div style="background-color: black">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="black">
+                    </div>
+                    <div style="background-color: gray">
+                      <input v-model="radioColorEdit" type="radio" name="gender" value="gray">
+                    </div>
+                    </div>
+                    <div>
+                      <el-button @click="editLabels" type="success" size="medium">Sửa</el-button>
+                        <el-button @click="deleteLabels" type="danger" size="medium">Xóa</el-button>
+                      <el-button type="text" @click="cancalAddCard" size="medium">Thoát</el-button>
+                    </div>
+                  </div>
+                  </div>
+                </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-price-tag"></i>
                   Nhãn
@@ -172,9 +309,18 @@
               <el-popover
                 class="labels"
                 placement="bottom"
-                width="400"
+                width="350"
                 trigger="click"
               >
+                <div class="add-new-card-input">
+                    <p class="add-new-card-title">Tiêu đề</p>
+                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCheckListData"></el-input>
+                  </div>
+                  <div class="add-new-card-color">
+                    <div>
+                      <el-button @click="addCheckList" type="success" size="medium">Thêm</el-button>
+                    </div>
+                  </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-document-checked"></i>
                   Việc cần làm
@@ -185,9 +331,18 @@
               <el-popover
                 class="labels"
                 placement="bottom"
-                width="400"
+                width="350"
                 trigger="click"
               >
+                <el-date-picker
+                  v-model="dateValue"
+                  type="datetime"
+                  placeholder="Chọn ngày hết hạn">
+                </el-date-picker>
+                <div class="date-list">
+                      <el-button @click="addDateList" type="success" size="medium">Lưu</el-button>
+                      <el-button type="danger" size="medium">Gỡ bỏ</el-button>
+                    </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-time"></i>
                   Ngày hết hạn
@@ -198,9 +353,11 @@
               <el-popover
                 class="labels"
                 placement="bottom"
-                width="400"
+                width="350"
                 trigger="click"
               >
+                <input type="file" style="margin-bottom: 10px;">
+                <el-button type="success">Thêm tệp</el-button>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-files"></i>
                   Đính kèm
@@ -221,7 +378,7 @@
             type="danger"
             icon="el-icon-delete"
             circle
-            @click="dialogFormVisible = false"
+            @click="deleteCard(card.id)"
           ></el-button>
         </el-tooltip>
       </span>
@@ -231,24 +388,38 @@
 
 <script>
 import Tag from "../lists/Tag";
+import axios from "axios";
 
 export default {
   name: "Home",
-  props: ["card"],
+  props: ["card", "getdirectories"],
   components: {
     Tag,
   },
   data() {
     return {
+      cardData: [],
+      labels: [],
+      labelsLists: [],
       dialogFormVisible: false,
       titleClickCheck: true,
-      dataTitle: "sefsfsfs",
+      dataTitle: this.card.title,
       radioDate: "2",
       titleClickCard: true,
       dataTitleCard: "hihi haha",
       checkList: false,
-      dataNoteCard: '',
-      checkNoteCard: true
+      dataNoteCard: "",
+      checkNoteCard: true,
+      colorCard: "pink",
+      checkAddCard: true,
+      addNewCardData: '',
+      radioColor: 'green',
+      addNewCheckListData: '',
+      dateValue: '',
+      checkAttachLabels: true,
+      idLabel: 0,
+      addNewCardDataEdit: '',
+      radioColorEdit: '',
     };
   },
   methods: {
@@ -256,7 +427,25 @@ export default {
       this.titleClickCheck = false;
     },
     outTitleNode() {
-      this.titleClickCheck = true;
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.cardData.id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.dataTitle,
+          description: this.dataTitle,   
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+          this.titleClickCheck = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     clickTitleCard() {
       this.titleClickCard = false;
@@ -306,6 +495,211 @@ export default {
     addNoteCard() {
       //
     },
+    deleteCard(id) {
+      this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
+        confirmButtonText: "OK",
+        cancelButtonText: "Hủy",
+        type: "warning",
+        center: true,
+      })
+        .then(() => {
+          axios({
+            method: "delete",
+            url: "http://vuecourse.zent.edu.vn/api/cards/" + id,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          })
+            .then(() => {
+              this.getdirectories();
+              this.dialogFormVisible = false;
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+          this.$message({
+            type: "success",
+            message: "Xóa thành công",
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "Hủy xóa",
+          });
+        });
+    },
+    addNexCard() {
+      this.checkAddCard = false
+    },
+    cancalAddCard() {
+      this.checkAddCard = true
+      this.checkAttachLabels = true
+    },
+    addCard() {
+      axios({
+        method: "post",
+        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/label',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          name : this.addNewCardData,
+          color: this.radioColor
+        }
+      })
+        .then(() => {
+          this.addNewCardData = '';
+          this.radioColor = 'green';
+          this.getCards();
+          this.getdirectories();
+          this.getLabels()
+          this.checkAddCard = true
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    editLabels() {
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/labels/"+this.idLabel,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          name : this.addNewCardDataEdit,
+          color: this.radioColorEdit
+        }
+      })
+        .then(() => {
+          this.addNewCardDataEdit = '';
+          this.radioColorEdit = '';
+          this.getCards();
+          this.getdirectories();
+          this.getLabels()
+          this.checkAddCard = true
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    deleteLabels() {
+      axios({
+        method: "delete",
+        url: "http://vuecourse.zent.edu.vn/api/labels/"+this.idLabel,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+          this.getLabels()
+          this.checkAddCard = true
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    addDateList() {
+      console.log(this.dateValue)
+    },
+    addCheckList() {
+      this.checkAttachLabels = true
+    },
+    attachLabels(id) {
+      let aa 
+      for (let index = 0; index < this.labels.length; index++) {
+        if (this.labels[index].id == id) {
+          aa = this.labels[index].id;
+        }
+      }
+      if (!aa) {
+        axios({
+        method: "post",
+        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/attach-labels',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          label_id : id,
+        }
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+          this.getLabels()
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      } else {
+        axios({
+        method: "delete",
+        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/detach-labels',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          label_id : id,
+        }
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+          this.getLabels()
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+    },
+    editAttachLabels(id,name,color) {
+      this.idLabel = id
+      this.addNewCardDataEdit = name
+      this.radioColorEdit = color
+      this.checkAddCard=false
+      this.checkAttachLabels =false
+    },
+    getLabels() {
+      axios({
+        method: "get",
+        url: "http://vuecourse.zent.edu.vn/api/labels",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then((response) => {
+          // console.log(response.data.data)
+          this.labelsLists = response.data.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    getCards() {
+      axios({
+        method: "get",
+        url: "http://vuecourse.zent.edu.vn/api/cards/" + this.card.id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then((response) => {
+          // console.log(this.card.id)
+          this.cardData = response.data.data;
+          this.labels = response.data.data.labels;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+  mounted() {
+    this.getdirectories();
+    this.getCards();
+    this.getLabels()
   },
 };
 </script>
@@ -359,6 +753,7 @@ export default {
 
 .right-title > p {
   font-size: 24px;
+  padding-bottom: 5px;
 }
 
 .right-title > span {
@@ -412,5 +807,65 @@ export default {
 .margin-checklist {
   margin-bottom: 10px;
   width: 100%;
+}
+
+.tag-content {
+  padding: 8px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.tag-content span {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.tag-content:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.add-new-card-input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.add-new-card-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.add-new-card-color-box {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.add-new-card-color-box div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 35px;
+  color: white;
+  border-radius: 5px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.add-new-card-color-box div:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.date-list {
+  margin-top: 10px;
 }
 </style>

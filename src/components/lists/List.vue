@@ -26,7 +26,7 @@
       </div>
       <draggable :animation="100" class="content" group="people">
         <div class="content-body" v-for="(card, index) in cards" :key="index">
-          <ContentList :card="card"/>
+          <ContentList :card="card" :getdirectories="getdirectories"/>
         </div>
         <div class="add-new-list">
           <el-input
@@ -182,9 +182,8 @@ export default {
         },
       })
         .then((response) => {
-          // console.log(response)
-          this.setLists(response.data.data);
-          this.cards = this.list.cards
+          // console.log(this.list.index)
+          this.cards = response.data.data[this.list.index].cards
         })
         .catch((error) => {
           console.log(error);
@@ -235,6 +234,7 @@ export default {
     overflow-x: hidden;
     overflow-y: auto;
     background-color: #ebecf0;
+    padding-bottom: 2px;
     .content-body {
       width: 100%;
       display: flex;
