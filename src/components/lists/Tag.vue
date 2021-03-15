@@ -15,7 +15,7 @@ export default {
 <style scoped lang="scss">
 .tag {
   border-radius: 5px;
-  padding: 0 10px;
+  padding: 2px 10px;
   margin-right: 4px;
   margin-bottom: 4px;
   font-size: 12px;

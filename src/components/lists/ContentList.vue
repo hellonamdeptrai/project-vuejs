@@ -1,7 +1,7 @@
 <template>
-  <div @click="dialogFormVisible = true,getCards()">
+  <div @click="(dialogFormVisible = true), getCards()">
     <div class="content-tag">
-      <Tag v-for="(label, index) in labels" :key="index" :label="label"/>
+      <Tag v-for="(label, index) in labels" :key="index" :label="label" />
     </div>
     <div class="content-text" type="text">
       <p>
@@ -9,13 +9,21 @@
       </p>
     </div>
     <div class="content-end">
-      <div
+      <div v-show="formatDate2(cardData.deadline) !== 'Invalid date'">
+        <div v-if="cardData.status === 1"
         class="content-end-detail"
-        style="background-color: pink; color: white"
+        style="background-color: #61bd4f; color: white"
       >
-        <i class="el-icon-time"></i>20 tháng 2
+        <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
       </div>
-      <div class="content-end-detail"><i class="el-icon-tickets"></i></div>
+      <div v-else
+        class="content-end-detail"
+        style="background-color: #ec9488; color: white"
+      >
+        <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
+      </div>
+      </div>
+      <div v-show="dataTitleCard" class="content-end-detail"><i class="el-icon-tickets"></i></div>
       <div class="content-end-detail"><i class="el-icon-files"></i>1</div>
       <div class="content-end-detail">
         <i class="el-icon-document-checked"></i>2/5
@@ -23,7 +31,11 @@
     </div>
 
     <!-- edit detail -->
-    <el-dialog :append-to-body="true" :visible.sync="dialogFormVisible">
+    <el-dialog
+      width="750px"
+      :append-to-body="true"
+      :visible.sync="dialogFormVisible"
+    >
       <el-row>
         <el-col :span="1">
           <div class="left-title">
@@ -44,7 +56,7 @@
               autofocus
               v-model="dataTitle"
             ></el-input>
-            <span>Trong danh sách <a href="#">Đang làm</a></span>
+            <!-- <span>Trong danh sách <b>{{ card.title }}</b></span> -->
           </div>
         </el-col>
       </el-row>
@@ -56,20 +68,48 @@
               <div class="tag-detail">
                 <p class="title-tag-detail">NHÃN</p>
                 <div class="tag-detail-tag">
-                  <div v-for="(label, index) in labels" :key="index" :style="{background: label.color }"> {{ label.name }}</div>
+                  <div
+                    v-for="(label, index) in labels"
+                    :key="index"
+                    :style="{ background: label.color }"
+                  >
+                    {{ label.name }}
+                  </div>
                 </div>
               </div>
             </el-col>
           </el-row>
-          <el-row class="magin-mission">
+          <el-row v-show="cardData.deadline" class="magin-mission">
             <el-col :span="2" style="font-size: 1px"> . </el-col>
             <el-col :span="22">
               <div class="tag-detail">
                 <p class="title-tag-detail">NGÀY HẾT HẠN</p>
-                <div class="radio-date">
-                  <el-radio v-model="radioDate" label="1">Quá hạn</el-radio>
-                  <el-radio v-model="radioDate" label="2">Hoàn tất</el-radio>
-                  <span>10/1/2021</span>
+                <div class="checkbox-date">
+                  <input
+                    type="checkbox"
+                    v-if="cardData.status == 1"
+                    checked
+                    @click="checkBoxDateDate"
+                  />
+                  <input type="checkbox" v-else @click="checkBoxDateDate" />
+                  <div>
+                    {{ cardData.deadline }}
+                    <span
+                      v-if="
+                        cardData.status == 1
+                      "
+                      style="background-color: green"
+                      >HOÀN TẤT</span
+                    >
+                    <span
+                      v-if="
+                        cardData.deadline <= formatDate(new Date()) &&
+                        cardData.status == 0
+                      "
+                      style="background-color: Red"
+                      >HẾT HẠN</span
+                    >
+                  </div>
                 </div>
               </div>
             </el-col>
@@ -81,11 +121,12 @@
             <el-col :span="22">
               <div class="note-card">
                 <p class="title-tag-detail">MÔ TẢ</p>
-                <p v-if="titleClickCard" @click="clickTitleCard">hihi haha</p>
+                <p v-if="titleClickCard && dataTitleCard" @click="clickTitleCard">{{ dataTitleCard }}</p>
                 <el-input
                   v-else
                   type="textarea"
                   @focusout.native="outTitleCard"
+                  @keyup.enter.native="outTitleCard"
                   autosize
                   autofocus
                   v-model="dataTitleCard"
@@ -176,21 +217,36 @@
                 <div v-if="checkAddCard">
                   <p class="title-tag-detail">NHÃN</p>
                   <div>
-                    <el-row v-for="(labelsList, index) in labelsLists" :key="index" :gutter="10">
-                      <el-col @click.native="attachLabels(labelsList.id)" :span="21"
+                    <el-row
+                      v-for="(labelsList, index) in labelsLists"
+                      :key="index"
+                      :gutter="10"
+                    >
+                      <el-col
+                        @click.native="attachLabels(labelsList.id)"
+                        :span="21"
                         ><div
                           class="tag-content"
                           :style="{ background: labelsList.color }"
                         >
-                          <span
-                            >{{ labelsList.name }}</span
-                          >
-                          <i v-for="(label, index) in labels" :key="index" v-show="labelsList.id == label.id" class="el-icon-check"></i>
+                          <span>{{ labelsList.name }}</span>
+                          <i
+                            v-for="(label, index) in labels"
+                            :key="index"
+                            v-show="labelsList.id == label.id"
+                            class="el-icon-check"
+                          ></i>
                         </div>
                       </el-col>
                       <el-col :span="3"
                         ><el-button
-                          @click="editAttachLabels(labelsList.id,labelsList.name,labelsList.color)"
+                          @click="
+                            editAttachLabels(
+                              labelsList.id,
+                              labelsList.name,
+                              labelsList.color
+                            )
+                          "
                           size="mini"
                           icon="el-icon-edit"
                           circle
@@ -198,105 +254,245 @@
                       ></el-col>
                     </el-row>
                   </div>
-                  <el-button plain size="medium" @click="addNexCard">Tạo nhãn mới</el-button>
+                  <el-button plain size="medium" @click="addNexCard"
+                    >Tạo nhãn mới</el-button
+                  >
                 </div>
                 <div v-else>
                   <div v-if="checkAttachLabels">
                     <div class="add-new-card-input">
-                    <p class="add-new-card-title">Tên</p>
-                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCardData"></el-input>
-                  </div>
-                  <div class="add-new-card-color">
-                    <p class="add-new-card-title">Chọn một màu</p>
-                    <div class="add-new-card-color-box">
-                      <div style="background-color: green">
-                      <input v-model="radioColor" type="radio" name="gender" value="green">
+                      <p class="add-new-card-title">Tên</p>
+                      <el-input
+                        placeholder="Nhập tên nhãn"
+                        v-model="addNewCardData"
+                      ></el-input>
                     </div>
-                    <div style="background-color: yellow">
-                      <input v-model="radioColor" type="radio" name="gender" value="yellow">
+                    <div class="add-new-card-color">
+                      <p class="add-new-card-title">Chọn một màu</p>
+                      <div class="add-new-card-color-box">
+                        <div style="background-color: green">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="green"
+                          />
+                        </div>
+                        <div style="background-color: yellow">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="yellow"
+                          />
+                        </div>
+                        <div style="background-color: orange">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="orange"
+                          />
+                        </div>
+                        <div style="background-color: red">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="red"
+                          />
+                        </div>
+                        <div style="background-color: purple">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="purple"
+                          />
+                        </div>
+                        <div style="background-color: blue">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="blue"
+                          />
+                        </div>
+                        <div style="background-color: aquamarine">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="aquamarine"
+                          />
+                        </div>
+                        <div style="background-color: lime">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="lime"
+                          />
+                        </div>
+                        <div style="background-color: pink">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="pink"
+                          />
+                        </div>
+                        <div style="background-color: black">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="black"
+                          />
+                        </div>
+                        <div style="background-color: gray">
+                          <input
+                            v-model="radioColor"
+                            type="radio"
+                            name="gender"
+                            value="gray"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <el-button @click="addCard" type="success" size="medium"
+                          >Tạo mới</el-button
+                        >
+                        <el-button
+                          type="text"
+                          @click="cancalAddCard"
+                          size="medium"
+                          >Thoát</el-button
+                        >
+                      </div>
                     </div>
-                    <div style="background-color: orange">
-                      <input v-model="radioColor" type="radio" name="gender" value="orange">
-                    </div>
-                    <div style="background-color: red">
-                      <input v-model="radioColor" type="radio" name="gender" value="red">
-                    </div>
-                    <div style="background-color: purple">
-                      <input v-model="radioColor" type="radio" name="gender" value="purple">
-                    </div>
-                    <div style="background-color: blue">
-                      <input v-model="radioColor" type="radio" name="gender" value="blue">
-                    </div>
-                    <div style="background-color: aquamarine">
-                      <input v-model="radioColor" type="radio" name="gender" value="aquamarine">
-                    </div>
-                    <div style="background-color: lime">
-                      <input v-model="radioColor" type="radio" name="gender" value="lime">
-                    </div>
-                    <div style="background-color: pink">
-                      <input v-model="radioColor" type="radio" name="gender" value="pink">
-                    </div>
-                    <div style="background-color: black">
-                      <input v-model="radioColor" type="radio" name="gender" value="black">
-                    </div>
-                    <div style="background-color: gray">
-                      <input v-model="radioColor" type="radio" name="gender" value="gray">
-                    </div>
-                    </div>
-                    <div>
-                      <el-button @click="addCard" type="success" size="medium">Tạo mới</el-button>
-                      <el-button type="text" @click="cancalAddCard" size="medium">Thoát</el-button>
-                    </div>
-                  </div>
                   </div>
                   <div v-else>
                     <div class="add-new-card-input">
-                    <p class="add-new-card-title">Tên</p>
-                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCardDataEdit"></el-input>
-                  </div>
-                  <div class="add-new-card-color">
-                    <p class="add-new-card-title">Chọn một màu</p>
-                    <div class="add-new-card-color-box">
-                      <div style="background-color: green">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="green">
+                      <p class="add-new-card-title">Tên</p>
+                      <el-input
+                        placeholder="Nhập tên nhãn"
+                        v-model="addNewCardDataEdit"
+                      ></el-input>
                     </div>
-                    <div style="background-color: yellow">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="yellow">
+                    <div class="add-new-card-color">
+                      <p class="add-new-card-title">Chọn một màu</p>
+                      <div class="add-new-card-color-box">
+                        <div style="background-color: green">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="green"
+                          />
+                        </div>
+                        <div style="background-color: yellow">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="yellow"
+                          />
+                        </div>
+                        <div style="background-color: orange">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="orange"
+                          />
+                        </div>
+                        <div style="background-color: red">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="red"
+                          />
+                        </div>
+                        <div style="background-color: purple">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="purple"
+                          />
+                        </div>
+                        <div style="background-color: blue">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="blue"
+                          />
+                        </div>
+                        <div style="background-color: aquamarine">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="aquamarine"
+                          />
+                        </div>
+                        <div style="background-color: lime">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="lime"
+                          />
+                        </div>
+                        <div style="background-color: pink">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="pink"
+                          />
+                        </div>
+                        <div style="background-color: black">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="black"
+                          />
+                        </div>
+                        <div style="background-color: gray">
+                          <input
+                            v-model="radioColorEdit"
+                            type="radio"
+                            name="gender"
+                            value="gray"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <el-button
+                          @click="editLabels"
+                          type="success"
+                          size="medium"
+                          >Sửa</el-button
+                        >
+                        <el-button
+                          @click="deleteLabels"
+                          type="danger"
+                          size="medium"
+                          >Xóa</el-button
+                        >
+                        <el-button
+                          type="text"
+                          @click="cancalAddCard"
+                          size="medium"
+                          >Thoát</el-button
+                        >
+                      </div>
                     </div>
-                    <div style="background-color: orange">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="orange">
-                    </div>
-                    <div style="background-color: red">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="red">
-                    </div>
-                    <div style="background-color: purple">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="purple">
-                    </div>
-                    <div style="background-color: blue">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="blue">
-                    </div>
-                    <div style="background-color: aquamarine">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="aquamarine">
-                    </div>
-                    <div style="background-color: lime">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="lime">
-                    </div>
-                    <div style="background-color: pink">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="pink">
-                    </div>
-                    <div style="background-color: black">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="black">
-                    </div>
-                    <div style="background-color: gray">
-                      <input v-model="radioColorEdit" type="radio" name="gender" value="gray">
-                    </div>
-                    </div>
-                    <div>
-                      <el-button @click="editLabels" type="success" size="medium">Sửa</el-button>
-                        <el-button @click="deleteLabels" type="danger" size="medium">Xóa</el-button>
-                      <el-button type="text" @click="cancalAddCard" size="medium">Thoát</el-button>
-                    </div>
-                  </div>
                   </div>
                 </div>
                 <el-button class="button-detail-add-tag" slot="reference">
@@ -313,14 +509,22 @@
                 trigger="click"
               >
                 <div class="add-new-card-input">
-                    <p class="add-new-card-title">Tiêu đề</p>
-                    <el-input placeholder="Nhập tên nhãn" v-model="addNewCheckListData"></el-input>
+                  <p class="add-new-card-title">Tiêu đề</p>
+                  <el-input
+                    placeholder="Nhập tên nhãn"
+                    v-model="addNewCheckListData"
+                  ></el-input>
+                </div>
+                <div class="add-new-card-color">
+                  <div>
+                    <el-button
+                      @click="addCheckList"
+                      type="success"
+                      size="medium"
+                      >Thêm</el-button
+                    >
                   </div>
-                  <div class="add-new-card-color">
-                    <div>
-                      <el-button @click="addCheckList" type="success" size="medium">Thêm</el-button>
-                    </div>
-                  </div>
+                </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-document-checked"></i>
                   Việc cần làm
@@ -337,12 +541,15 @@
                 <el-date-picker
                   v-model="dateValue"
                   type="datetime"
-                  placeholder="Chọn ngày hết hạn">
+                  placeholder="Chọn ngày hết hạn"
+                >
                 </el-date-picker>
                 <div class="date-list">
-                      <el-button @click="addDateList" type="success" size="medium">Lưu</el-button>
-                      <el-button type="danger" size="medium">Gỡ bỏ</el-button>
-                    </div>
+                  <el-button @click="addDateList" type="success" size="medium"
+                    >Lưu</el-button
+                  >
+                  <el-button type="danger" size="medium">Gỡ bỏ</el-button>
+                </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-time"></i>
                   Ngày hết hạn
@@ -356,7 +563,7 @@
                 width="350"
                 trigger="click"
               >
-                <input type="file" style="margin-bottom: 10px;">
+                <input type="file" style="margin-bottom: 10px" />
                 <el-button type="success">Thêm tệp</el-button>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-files"></i>
@@ -389,6 +596,7 @@
 <script>
 import Tag from "../lists/Tag";
 import axios from "axios";
+import moment from "moment";
 
 export default {
   name: "Home",
@@ -404,22 +612,21 @@ export default {
       dialogFormVisible: false,
       titleClickCheck: true,
       dataTitle: this.card.title,
-      radioDate: "2",
       titleClickCard: true,
-      dataTitleCard: "hihi haha",
+      dataTitleCard: this.card.description,
       checkList: false,
       dataNoteCard: "",
       checkNoteCard: true,
       colorCard: "pink",
       checkAddCard: true,
-      addNewCardData: '',
-      radioColor: 'green',
-      addNewCheckListData: '',
-      dateValue: '',
+      addNewCardData: "",
+      radioColor: "green",
+      addNewCheckListData: "",
+      dateValue: "",
       checkAttachLabels: true,
       idLabel: 0,
-      addNewCardDataEdit: '',
-      radioColorEdit: '',
+      addNewCardDataEdit: "",
+      radioColorEdit: "",
     };
   },
   methods: {
@@ -427,15 +634,19 @@ export default {
       this.titleClickCheck = false;
     },
     outTitleNode() {
+      let dataDescription = '';
+      if (!this.dataTitleCard) {
+        dataDescription = this.dataTitleCard
+      }
       axios({
         method: "put",
-        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.cardData.id,
+        url: "http://vuecourse.zent.edu.vn/api/cards/" + this.cardData.id,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
         data: {
           title: this.dataTitle,
-          description: this.dataTitle,   
+          description: dataDescription,
         },
       })
         .then(() => {
@@ -451,7 +662,25 @@ export default {
       this.titleClickCard = false;
     },
     outTitleCard() {
-      this.titleClickCard = true;
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/cards/" + this.cardData.id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.dataTitle,
+          description: this.dataTitleCard,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+          this.titleClickCard = true;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     deleteFile() {
       this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
@@ -530,31 +759,32 @@ export default {
         });
     },
     addNexCard() {
-      this.checkAddCard = false
+      this.checkAddCard = false;
     },
     cancalAddCard() {
-      this.checkAddCard = true
-      this.checkAttachLabels = true
+      this.checkAddCard = true;
+      this.checkAttachLabels = true;
     },
     addCard() {
       axios({
         method: "post",
-        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/label',
+        url:
+          "http://vuecourse.zent.edu.vn/api/cards/" + this.card.id + "/label",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
         data: {
-          name : this.addNewCardData,
-          color: this.radioColor
-        }
+          name: this.addNewCardData,
+          color: this.radioColor,
+        },
       })
         .then(() => {
-          this.addNewCardData = '';
-          this.radioColor = 'green';
+          this.addNewCardData = "";
+          this.radioColor = "green";
           this.getCards();
           this.getdirectories();
-          this.getLabels()
-          this.checkAddCard = true
+          this.getLabels();
+          this.checkAddCard = true;
         })
         .catch((error) => {
           console.log(error);
@@ -563,22 +793,22 @@ export default {
     editLabels() {
       axios({
         method: "put",
-        url: "http://vuecourse.zent.edu.vn/api/labels/"+this.idLabel,
+        url: "http://vuecourse.zent.edu.vn/api/labels/" + this.idLabel,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
         data: {
-          name : this.addNewCardDataEdit,
-          color: this.radioColorEdit
-        }
+          name: this.addNewCardDataEdit,
+          color: this.radioColorEdit,
+        },
       })
         .then(() => {
-          this.addNewCardDataEdit = '';
-          this.radioColorEdit = '';
+          this.addNewCardDataEdit = "";
+          this.radioColorEdit = "";
           this.getCards();
           this.getdirectories();
-          this.getLabels()
-          this.checkAddCard = true
+          this.getLabels();
+          this.checkAddCard = true;
         })
         .catch((error) => {
           console.log(error);
@@ -587,7 +817,7 @@ export default {
     deleteLabels() {
       axios({
         method: "delete",
-        url: "http://vuecourse.zent.edu.vn/api/labels/"+this.idLabel,
+        url: "http://vuecourse.zent.edu.vn/api/labels/" + this.idLabel,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
@@ -595,21 +825,115 @@ export default {
         .then(() => {
           this.getCards();
           this.getdirectories();
-          this.getLabels()
-          this.checkAddCard = true
+          this.getLabels();
+          this.checkAddCard = true;
         })
         .catch((error) => {
           console.log(error);
         });
     },
+    formatDate(dateString) {
+      return moment(dateString).format("YYYY-MM-DD hh:mm:ss");
+    },
+    formatDate2(dateString) {
+      return moment(dateString).format("DD - MM");
+    },
     addDateList() {
-      console.log(this.dateValue)
+      axios({
+        method: "put",
+        url:
+          "http://vuecourse.zent.edu.vn/api/cards/" +
+          this.card.id +
+          "/change-status-deadline",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          deadline: this.formatDate(this.dateValue),
+        },
+      })
+        .then(() => {
+          this.statusDateDate();
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    statusDateDate() {
+      axios({
+          method: "put",
+          url:
+            "http://vuecourse.zent.edu.vn/api/cards/" +
+            this.card.id +
+            "/change-status",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          data: {
+            status: 0,
+          },
+        })
+          .then(() => {
+            this.getCards();
+            this.getdirectories();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+    },
+    checkBoxDateDate() {
+      if (this.cardData.status == 1) {
+        this.statusDateDate();
+      } else {
+        axios({
+          method: "put",
+          url:
+            "http://vuecourse.zent.edu.vn/api/cards/" +
+            this.card.id +
+            "/change-status",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          data: {
+            status: 1,
+          },
+        })
+          .then(() => {
+            this.getCards();
+            this.getdirectories();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
     addCheckList() {
-      this.checkAttachLabels = true
+      axios({
+          method: "put",
+          url:
+            "http://vuecourse.zent.edu.vn/api/cards/" +
+            this.card.id +
+            "/change-status",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          data: {
+            status: 1,
+          },
+        })
+          .then(() => {
+            this.getCards();
+            this.getdirectories();
+            this.checkAttachLabels = true;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
     },
     attachLabels(id) {
-      let aa 
+      let aa;
       for (let index = 0; index < this.labels.length; index++) {
         if (this.labels[index].id == id) {
           aa = this.labels[index].id;
@@ -617,50 +941,56 @@ export default {
       }
       if (!aa) {
         axios({
-        method: "post",
-        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/attach-labels',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        data: {
-          label_id : id,
-        }
-      })
-        .then(() => {
-          this.getCards();
-          this.getdirectories();
-          this.getLabels()
+          method: "post",
+          url:
+            "http://vuecourse.zent.edu.vn/api/cards/" +
+            this.card.id +
+            "/attach-labels",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          data: {
+            label_id: id,
+          },
         })
-        .catch((error) => {
-          console.log(error);
-        });
+          .then(() => {
+            this.getCards();
+            this.getdirectories();
+            this.getLabels();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       } else {
         axios({
-        method: "delete",
-        url: "http://vuecourse.zent.edu.vn/api/cards/"+this.card.id+'/detach-labels',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        data: {
-          label_id : id,
-        }
-      })
-        .then(() => {
-          this.getCards();
-          this.getdirectories();
-          this.getLabels()
+          method: "delete",
+          url:
+            "http://vuecourse.zent.edu.vn/api/cards/" +
+            this.card.id +
+            "/detach-labels",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+          data: {
+            label_id: id,
+          },
         })
-        .catch((error) => {
-          console.log(error);
-        });
+          .then(() => {
+            this.getCards();
+            this.getdirectories();
+            this.getLabels();
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       }
     },
-    editAttachLabels(id,name,color) {
-      this.idLabel = id
-      this.addNewCardDataEdit = name
-      this.radioColorEdit = color
-      this.checkAddCard=false
-      this.checkAttachLabels =false
+    editAttachLabels(id, name, color) {
+      this.idLabel = id;
+      this.addNewCardDataEdit = name;
+      this.radioColorEdit = color;
+      this.checkAddCard = false;
+      this.checkAttachLabels = false;
     },
     getLabels() {
       axios({
@@ -687,7 +1017,7 @@ export default {
         },
       })
         .then((response) => {
-          // console.log(this.card.id)
+          // console.log(response.data.data)
           this.cardData = response.data.data;
           this.labels = response.data.data.labels;
         })
@@ -699,7 +1029,8 @@ export default {
   mounted() {
     this.getdirectories();
     this.getCards();
-    this.getLabels()
+    this.getLabels();
+    // console.log(this.cardData)
   },
 };
 </script>
@@ -867,5 +1198,25 @@ export default {
 
 .date-list {
   margin-top: 10px;
+}
+
+.checkbox-date {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-date div {
+  background-color: #eaecf0;
+  border-radius: 5px;
+  padding: 10px;
+  margin-left: 5px;
+}
+
+.checkbox-date div span {
+  color: white;
+  margin: 5px;
+  border-radius: 5px;
+  padding: 5px;
+  font-size: 10px;
 }
 </style>

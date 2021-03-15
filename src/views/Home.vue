@@ -1,6 +1,6 @@
 <template>
-  <draggable :animation="100" class="home">
-    <div class="divList" v-for="(list, index) in lists" :key="index">
+  <draggable :list="myList" :move="checkMove" :animation="100" class="home">
+    <div class="divList" v-for="(list) in lists" :key="list.id">
       <List :list="list"/>
     </div>
     <div slot="footer" v-if="checkClickAdd" class="add-new-list">
@@ -39,6 +39,14 @@ export default {
   },
   computed: {
     ...mapState("home", ['lists','checkClickAdd']),
+    myList: {
+      get() {
+            return this.lists
+        },
+        set(value) {
+            this.setLists(value)
+        }
+    }
   },
   methods: {
     ...mapMutations("home", ["setCheckClickAdd",'setLists']),
@@ -55,7 +63,7 @@ export default {
         },
         data: {
           title: this.addList,
-          index: this.lists.length+1
+          index: this.lists.length
         }
       })
         .then(() => {
@@ -68,6 +76,25 @@ export default {
     },
     clickAddOut() {
       this.setCheckClickAdd(true);
+    },
+    checkMove(e) {
+      console.log(e)
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/directories/"+e.draggedContext.element.id+'/index',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        },
+        data: {
+          index: e.draggedContext.futureIndex
+        }
+      })
+        .then(() => {
+          // this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     getdirectories() {
       axios({
@@ -88,7 +115,8 @@ export default {
   },
   mounted() {
     this.getdirectories();
-  },
+    // console.log(this.myList)
+  }
 };
 </script>
 
