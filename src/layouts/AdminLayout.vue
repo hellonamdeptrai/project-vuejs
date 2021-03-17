@@ -99,6 +99,7 @@ export default {
     .logo {
       img {
         width: 99px;
+        filter: invert(1);
       }
     }
     .user {

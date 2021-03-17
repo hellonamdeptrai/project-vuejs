@@ -24,8 +24,8 @@
           </div>
         </div>
       </div>
-      <draggable :list="cards" :move="checkMoveCard" :animation="100" class="content" group="people">
-        <div class="content-body" v-for="(card, index) in cards" :key="index">
+      <draggable :move="checkMoveCard" :animation="100" class="content" group="people">
+        <div class="content-body" v-for="(card) in cards" :key="card.id">
           <ContentList :card="card" :getdirectories="getdirectories"/>
         </div>
         <div class="add-new-list">
@@ -174,23 +174,23 @@ export default {
         });
     },
     checkMoveCard(e) {
-      // console.log(e.draggedContext)
-      axios({
-        method: "put",
-        url: "http://vuecourse.zent.edu.vn/api/cards/"+e.draggedContext.element.id+'/index',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`
-        },
-        data: {
-          index: e.draggedContext.futureIndex
-        }
-      })
-        .then(() => {
-          this.getdirectories();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      console.log(e.draggedContext)
+      // axios({
+      //   method: "put",
+      //   url: "http://vuecourse.zent.edu.vn/api/cards/"+e.draggedContext.element.id+'/index',
+      //   headers: {
+      //     Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      //   },
+      //   data: {
+      //     index: e.draggedContext.futureIndex
+      //   }
+      // })
+      //   .then(() => {
+      //     this.getdirectories();
+      //   })
+      //   .catch((error) => {
+      //     console.log(error);
+      //   });
     },
     getdirectories() {
       axios({

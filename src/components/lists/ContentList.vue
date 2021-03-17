@@ -10,20 +10,24 @@
     </div>
     <div class="content-end">
       <div v-show="formatDate2(cardData.deadline) !== 'Invalid date'">
-        <div v-if="cardData.status === 1"
-        class="content-end-detail"
-        style="background-color: #61bd4f; color: white"
-      >
-        <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
+        <div
+          v-if="cardData.status === 1"
+          class="content-end-detail"
+          style="background-color: #61bd4f; color: white"
+        >
+          <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
+        </div>
+        <div
+          v-else
+          class="content-end-detail"
+          style="background-color: #ec9488; color: white"
+        >
+          <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
+        </div>
       </div>
-      <div v-else
-        class="content-end-detail"
-        style="background-color: #ec9488; color: white"
-      >
-        <i class="el-icon-time"></i> {{ formatDate2(cardData.deadline) }}
+      <div v-show="card.description" class="content-end-detail">
+        <i class="el-icon-tickets"></i>
       </div>
-      </div>
-      <div v-show="dataTitleCard" class="content-end-detail"><i class="el-icon-tickets"></i></div>
       <div class="content-end-detail"><i class="el-icon-files"></i>1</div>
       <div class="content-end-detail">
         <i class="el-icon-document-checked"></i>2/5
@@ -95,10 +99,8 @@
                   <div>
                     {{ cardData.deadline }}
                     <span
-                      v-if="
-                        cardData.status == 1
-                      "
-                      style="background-color: green"
+                      v-if="cardData.status == 1"
+                      style="background-color: #61bd4f;"
                       >HOÀN TẤT</span
                     >
                     <span
@@ -106,8 +108,16 @@
                         cardData.deadline <= formatDate(new Date()) &&
                         cardData.status == 0
                       "
-                      style="background-color: Red"
+                      style="background-color: #ec9488;"
                       >HẾT HẠN</span
+                    >
+                    <span
+                      v-else-if="
+                        cardData.deadline <= formatDate(new Date().setDate(new Date().getDate() + 1)) &&
+                        cardData.status == 0
+                      "
+                      style="background-color: #f2d600;"
+                      >GẦN HẾT HẠN</span
                     >
                   </div>
                 </div>
@@ -121,14 +131,18 @@
             <el-col :span="22">
               <div class="note-card">
                 <p class="title-tag-detail">MÔ TẢ</p>
-                <p v-if="titleClickCard && dataTitleCard" @click="clickTitleCard">{{ dataTitleCard }}</p>
+                <p
+                  v-if="titleClickCard && card.description"
+                  @click="clickTitleCard"
+                >
+                  {{ card.description }}
+                </p>
                 <el-input
                   v-else
                   type="textarea"
+                  placeholder="Thêm mô tả chi tiết hơn..."
                   @focusout.native="outTitleCard"
                   @keyup.enter.native="outTitleCard"
-                  autosize
-                  autofocus
                   v-model="dataTitleCard"
                 ></el-input>
               </div>
@@ -154,51 +168,128 @@
               </div>
             </el-col>
           </el-row>
-          <el-row class="magin-mission">
+          <el-row
+            v-for="checkL in checkLists"
+            :key="checkL.id"
+            class="magin-mission"
+          >
             <el-col :span="2" style="font-size: 24px"
               ><i class="el-icon-document-checked"></i
             ></el-col>
             <el-col :span="22">
               <div class="note-card">
-                <p class="title-tag-detail">VIỆC CẦN LÀM</p>
-                <div>
-                  <el-progress
-                    class="margin-checklist"
-                    :percentage="50"
-                  ></el-progress>
-                  <el-checkbox class="margin-checklist" v-model="checkList">
-                    <del v-if="checkList">hihi</del>
-                    <span v-else>hihi</span>
-                  </el-checkbox>
-                </div>
-                <div>
-                  <el-button
-                    v-if="checkNoteCard"
-                    size="medium"
-                    plain
-                    @click="clickNoteCard"
-                    >Thêm một mục</el-button
+                <div v-if="checkLEdit == checkL.id">
+                  <el-input
+                    type="textarea"
+                    placeholder="Nhập công việc"
+                    v-model="editCheckL"
+                    @keydown.enter.native="saveCheckLEidt(checkL.id)"
+                    @focusout.native="saveCheckLEidt(checkL.id)"
                   >
-                  <div v-else>
+                  </el-input>
+                  <el-button
+                    @click="saveCheckLEidt(checkL.id)"
+                    type="success"
+                    size="mini"
+                    >Lưu</el-button
+                  >
+                  <el-button
+                    type="text"
+                    @click="(checkLEdit = ''), (editCheckL = '')"
+                    ><i class="el-icon-close"></i
+                  ></el-button>
+                </div>
+                <div v-else class="delete-check-list">
+                  <p
+                    @click="
+                      (checkLEdit = checkL.id), (editCheckL = checkL.title)
+                    "
+                    class="title-tag-detail"
+                  >
+                    {{ checkL.title }}
+                  </p>
+                  <el-popconfirm
+                    title="Danh sách công việc sẽ bị xoá vĩnh viễn và không bao giờ lấy lại được."
+                    confirm-button-text="Xóa"
+                    @confirm="deleteCheckLEidt(checkL.id)"
+                    cancel-button-text="Thoát"
+                    icon="el-icon-info"
+                    icon-color="red"
+                  >
+                    <el-button size="mini" type="info" plain slot="reference"
+                      >Xóa</el-button
+                    >
+                  </el-popconfirm>
+                </div>
+                <el-progress
+                  class="margin-checklist"
+                  :percentage="50"
+                ></el-progress>
+                <div
+                  v-for="checkListChild in (checkL.check_list_childs)"
+                  :key="checkListChild.id"
+                >
+                  <div v-if="checkListShowEdit == checkListChild.id">
                     <el-input
                       type="textarea"
-                      @focusout.native="outNoteCard"
-                      autosize
-                      autofocus
+                      placeholder="Nhập công việc con"
+                      v-model="editCheckLEidtChildData"
+                      @keydown.enter.native="saveCheckLEidtChild(checkListChild.id)"
+                      @focusout.native="saveCheckLEidtChild(checkListChild.id)"
+                    >
+                    </el-input>
+                    <el-button
+                      @click="saveCheckLEidtChild(checkListChild.id)"
+                      type="success"
+                      size="mini"
+                      >Lưu</el-button
+                    >
+                    <el-button
+                      type="text"
+                      @click="checkListShowEdit = '', editCheckLEidtChildData = ''"
+                      ><i class="el-icon-close"></i
+                    ></el-button>
+                  </div>
+                  <div v-else class="flex-checklist">
+                    <div class="margin-checklist check-box-check-list-chid">
+                      <input v-if="checkListChild.status === 1" @click="statusCheckLEidtChild(checkListChild)" checked type="checkbox">
+                      <input v-else @click="statusCheckLEidtChild(checkListChild)" type="checkbox">
+                      <del v-if="checkListChild.status === 1" @click="checkListShowEdit = checkListChild.id, editCheckLEidtChildData = checkListChild.title">{{
+                      checkListChild.title
+                      }}</del>
+                      <span v-else @click="checkListShowEdit = checkListChild.id, editCheckLEidtChildData = checkListChild.title">{{
+                        checkListChild.title
+                      }}</span>
+                    </div>
+                  <el-button @click="deleteCheckLEidtChild(checkListChild.id)" style="margin-bottom: 10px;" size="mini" type="text" icon="el-icon-close"></el-button>
+                  </div>
+                </div>
+                <div>
+                  <div v-if="checkNoteCard === checkL.id">
+                    <el-input
+                      type="textarea"
+                      @keyup.enter.native="addNoteCard(checkL.id)"
                       v-model="dataNoteCard"
                     ></el-input>
                     <div style="margin-top: 10px">
                       <el-button
-                        size="medium"
+                        size="mini"
                         type="success"
-                        @click="addNoteCard"
+                        @click="addNoteCard(checkL.id)"
                         >Thêm</el-button
                       >
-                      <el-button size="medium" type="text" @click="outNoteCard"
+                      <el-button size="mini" type="text" @click="checkNoteCard = ''"
                         ><i class="el-icon-close"></i
                       ></el-button>
                     </div>
                   </div>
+                  <el-button
+                    v-else
+                    size="mini"
+                    plain
+                    @click="checkNoteCard = checkL.id"
+                    >Thêm một mục</el-button
+                  >
                 </div>
               </div>
             </el-col>
@@ -254,7 +345,7 @@
                       ></el-col>
                     </el-row>
                   </div>
-                  <el-button plain size="medium" @click="addNexCard"
+                  <el-button plain size="mini" @click="addNexCard"
                     >Tạo nhãn mới</el-button
                   >
                 </div>
@@ -360,13 +451,13 @@
                         </div>
                       </div>
                       <div>
-                        <el-button @click="addCard" type="success" size="medium"
+                        <el-button @click="addCard" type="success" size="mini"
                           >Tạo mới</el-button
                         >
                         <el-button
                           type="text"
                           @click="cancalAddCard"
-                          size="medium"
+                          size="mini"
                           >Thoát</el-button
                         >
                       </div>
@@ -476,19 +567,19 @@
                         <el-button
                           @click="editLabels"
                           type="success"
-                          size="medium"
+                          size="mini"
                           >Sửa</el-button
                         >
                         <el-button
                           @click="deleteLabels"
                           type="danger"
-                          size="medium"
+                          size="mini"
                           >Xóa</el-button
                         >
                         <el-button
                           type="text"
                           @click="cancalAddCard"
-                          size="medium"
+                          size="mini"
                           >Thoát</el-button
                         >
                       </div>
@@ -511,16 +602,14 @@
                 <div class="add-new-card-input">
                   <p class="add-new-card-title">Tiêu đề</p>
                   <el-input
-                    placeholder="Nhập tên nhãn"
+                    placeholder="Nhập tiêu đề công viêc"
                     v-model="addNewCheckListData"
+                    @keyup.enter.native="addCheckList"
                   ></el-input>
                 </div>
                 <div class="add-new-card-color">
                   <div>
-                    <el-button
-                      @click="addCheckList"
-                      type="success"
-                      size="medium"
+                    <el-button @click="addCheckList" type="success" size="mini"
                       >Thêm</el-button
                     >
                   </div>
@@ -539,16 +628,17 @@
                 trigger="click"
               >
                 <el-date-picker
+                  style="width: 100%"
                   v-model="dateValue"
                   type="datetime"
                   placeholder="Chọn ngày hết hạn"
                 >
                 </el-date-picker>
                 <div class="date-list">
-                  <el-button @click="addDateList" type="success" size="medium"
+                  <el-button @click="addDateList" type="success" size="mini"
                     >Lưu</el-button
                   >
-                  <el-button type="danger" size="medium">Gỡ bỏ</el-button>
+                  <el-button type="danger" size="mini">Gỡ bỏ</el-button>
                 </div>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-time"></i>
@@ -609,34 +699,49 @@ export default {
       cardData: [],
       labels: [],
       labelsLists: [],
+      checkLists: [],
       dialogFormVisible: false,
       titleClickCheck: true,
       dataTitle: this.card.title,
       titleClickCard: true,
       dataTitleCard: this.card.description,
-      checkList: false,
       dataNoteCard: "",
-      checkNoteCard: true,
+      checkNoteCard: '',
       colorCard: "pink",
       checkAddCard: true,
       addNewCardData: "",
       radioColor: "green",
-      addNewCheckListData: "",
+      addNewCheckListData: "Việc cần làm",
       dateValue: "",
       checkAttachLabels: true,
       idLabel: 0,
       addNewCardDataEdit: "",
       radioColorEdit: "",
+      checkLEdit: "",
+      editCheckL: "",
+      checkListShowEdit: '',
+      editCheckLEidtChildData: '',
     };
   },
+  // computed: {
+  //   countCheck: function() {
+  //     let dd = 0;
+  //     // list.forEach(li => {
+  //     //   if(li.status == 1){
+  //     //     dd = +1
+  //     //   }
+  //     // });
+  //     return dd
+  //   }
+  // },
   methods: {
     clickTitleNode() {
       this.titleClickCheck = false;
     },
     outTitleNode() {
-      let dataDescription = '';
+      let dataDescription = "";
       if (!this.dataTitleCard) {
-        dataDescription = this.dataTitleCard
+        dataDescription = this.dataTitleCard;
       }
       axios({
         method: "put",
@@ -715,14 +820,26 @@ export default {
           });
         });
     },
-    clickNoteCard() {
-      this.checkNoteCard = false;
-    },
-    outNoteCard() {
-      this.checkNoteCard = true;
-    },
-    addNoteCard() {
-      //
+    addNoteCard(id) {
+      axios({
+        method: "post",
+        url: "http://vuecourse.zent.edu.vn/api/check-list-childs",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.dataNoteCard,
+          check_list_id: id,
+        },
+      })
+        .then(() => {
+          this.dataNoteCard = "";
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     deleteCard(id) {
       this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
@@ -863,25 +980,25 @@ export default {
     },
     statusDateDate() {
       axios({
-          method: "put",
-          url:
-            "http://vuecourse.zent.edu.vn/api/cards/" +
-            this.card.id +
-            "/change-status",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          data: {
-            status: 0,
-          },
+        method: "put",
+        url:
+          "http://vuecourse.zent.edu.vn/api/cards/" +
+          this.card.id +
+          "/change-status",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          status: 0,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
         })
-          .then(() => {
-            this.getCards();
-            this.getdirectories();
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+        .catch((error) => {
+          console.log(error);
+        });
     },
     checkBoxDateDate() {
       if (this.cardData.status == 1) {
@@ -911,26 +1028,23 @@ export default {
     },
     addCheckList() {
       axios({
-          method: "put",
-          url:
-            "http://vuecourse.zent.edu.vn/api/cards/" +
-            this.card.id +
-            "/change-status",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          data: {
-            status: 1,
-          },
+        method: "post",
+        url: "http://vuecourse.zent.edu.vn/api/check-lists",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.addNewCheckListData,
+          card_id: this.card.id,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
         })
-          .then(() => {
-            this.getCards();
-            this.getdirectories();
-            this.checkAttachLabels = true;
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+        .catch((error) => {
+          console.log(error);
+        });
     },
     attachLabels(id) {
       let aa;
@@ -992,6 +1106,125 @@ export default {
       this.checkAddCard = false;
       this.checkAttachLabels = false;
     },
+    saveCheckLEidt(id) {
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/check-lists/" + id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.editCheckL,
+        },
+      })
+        .then(() => {
+          this.editCheckL = "";
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      this.checkLEdit = "";
+    },
+    CheckLEidt(id) {
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/check-lists/" + id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.editCheckL,
+        },
+      })
+        .then(() => {
+          this.editCheckL = "";
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    deleteCheckLEidt(id) {
+      axios({
+        method: "delete",
+        url: "http://vuecourse.zent.edu.vn/api/check-lists/" + id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    saveCheckLEidtChild(id) {
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/check-list-childs/" + id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          title: this.editCheckLEidtChildData,
+        },
+      })
+        .then(() => {
+          this.editCheckLEidtChildData = "";
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+        this.checkListShowEdit = "";
+    },
+    deleteCheckLEidtChild(id) {
+      axios({
+        method: "delete",
+        url: "http://vuecourse.zent.edu.vn/api/check-list-childs/" + id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        }
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    statusCheckLEidtChild(data) {
+      let stt = 0;
+      if (data.status) {
+        stt = 0;
+      } else {
+        stt = 1;
+      }
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/check-list-childs/" + data.id + "/change-status",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          status: stt,
+        },
+      })
+        .then(() => {
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     getLabels() {
       axios({
         method: "get",
@@ -1020,6 +1253,7 @@ export default {
           // console.log(response.data.data)
           this.cardData = response.data.data;
           this.labels = response.data.data.labels;
+          this.checkLists = response.data.data.check_lists;
         })
         .catch((error) => {
           console.log(error);
@@ -1030,7 +1264,6 @@ export default {
     this.getdirectories();
     this.getCards();
     this.getLabels();
-    // console.log(this.cardData)
   },
 };
 </script>
@@ -1218,5 +1451,29 @@ export default {
   border-radius: 5px;
   padding: 5px;
   font-size: 10px;
+}
+
+.delete-check-list {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.delete-check-list p {
+  cursor: pointer;
+}
+
+.flex-checklist {
+  display: flex;
+  justify-content: space-between;
+}
+
+.check-box-check-list-chid {
+  display: flex;
+  align-items: center;
+}
+
+.check-box-check-list-chid input{
+  margin-right: 10px;
 }
 </style>
