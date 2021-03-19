@@ -8,19 +8,15 @@
             <div class="sub-title">Lò Tuấn Nam</div>
           </div>
         </div>
-        <el-upload
-          class="upload-avatar"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          :on-change="handleChange"
-          :file-list="fileList"
-        >
-          <el-button size="small" type="primary"
-            >Tải ảnh đại diện lên</el-button
-          >
-          <div slot="tip" class="el-upload__tip">
-            Định dạng file jpg/png và kích thước nhỏ hơn 500kb
-          </div>
-        </el-upload>
+        <div class="file-input">
+                  <input @change="changeFile" type="file" id="file" class="file">
+                  <span v-if="fileData" @click="fileData = ''">
+                    Xóa avatar vừa chọn
+                  </span>
+                  <label v-else for="file">
+                    Chọn avatar
+                  </label>
+                </div>
         <el-form-item prop="name" label="Họ tên">
           <el-input
             type="text"
@@ -33,6 +29,7 @@
             type="email"
             placeholder="Email"
             v-model="ruleForm.email"
+            :disabled="true"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -58,19 +55,8 @@ export default {
   },
   data() {
     return {
-      circleUrl:
-        "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
-      squareUrl:
-        "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
-      fileList: [
-        //   {
-        //   name: 'food.jpeg',
-        //   url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-        // }, {
-        //   name: 'food2.jpeg',
-        //   url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'
-        // }
-      ],
+      fileData: '',
+      circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
       ruleForm: {
         name: "Lò Tuấn Nam",
         email: "nam@gmail.com",
@@ -101,12 +87,14 @@ export default {
           },
         ],
       },
-      handleChange(file, fileList) {
-        this.fileList = fileList.slice(-3);
-      },
     };
   },
   methods: {
+    changeFile(e) {
+      if (e.target.files.length) {
+        this.fileData = e.target.files[0];
+      }
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -141,8 +129,10 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
+  margin-top: 30px;
+  margin-bottom: 30px;
   .user-content {
-    width: 50%;
+    width: 400px;
     padding: 30px;
     border-radius: 30px;
     background-color: #fff;
@@ -158,9 +148,41 @@ export default {
         justify-content: center;
         align-items: center;
       }
-      .upload-avatar {
-        margin-top: 20px;
-        margin-bottom: 20px;
+      .file-input {
+        text-align: center;
+        margin-bottom: 15px;
+        margin-top: 5px;
+        .file {
+          opacity: 0;
+          width: 0.1px;
+          height: 0.1px;
+          position: absolute;
+        }
+        span {
+           display: inline-block;
+          position: relative;
+          width: 200px;
+          height: 40px;
+          border-radius: 10px;
+          line-height: 40px;
+          color: grey;
+          font-size: 12px;
+          font-weight: bold;
+          cursor: pointer;
+          color: rgb(245, 73, 73);
+        }
+        label {
+          display: inline-block;
+          position: relative;
+          width: 200px;
+          height: 40px;
+          border-radius: 10px;
+          line-height: 40px;
+          color: grey;
+          font-size: 12px;
+          font-weight: bold;
+          cursor: pointer;
+        }
       }
     }
   }

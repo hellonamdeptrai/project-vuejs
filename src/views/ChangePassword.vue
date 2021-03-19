@@ -30,7 +30,7 @@
         </el-form-item>
         <div class="login">
           <el-button type="text" @click="back()"
-            ><i class="el-icon-back"></i> Quay lại trang chủ</el-button
+            ><i class="el-icon-back"></i> Quay lại cài đặt</el-button
           >
         </div>
       </el-form>
@@ -106,7 +106,7 @@ export default {
       });
     },
     back() {
-      this.$router.push({ path: "/home" });
+      this.$router.push({ path: "user" });
     },
   },
 };
@@ -122,8 +122,10 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
+  margin-top: 30px;
+  margin-bottom: 30px;
   .pass-content {
-    width: 50%;
+    width: 400px;
     padding: 30px;
     border-radius: 30px;
     background-color: #fff;

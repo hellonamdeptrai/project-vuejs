@@ -24,8 +24,8 @@
           </div>
         </div>
       </div>
-      <draggable :move="checkMoveCard" :animation="100" class="content" group="people">
-        <div class="content-body" v-for="(card) in cards" :key="card.id">
+      <draggable :list="cards" :move="checkMoveCard" :animation="100" class="content" group="people">
+        <div class="content-body" v-for="(card) in cards" :key="card.index">
           <ContentList :card="card" :getdirectories="getdirectories"/>
         </div>
         <div class="add-new-list">
@@ -174,23 +174,23 @@ export default {
         });
     },
     checkMoveCard(e) {
-      console.log(e.draggedContext)
-      // axios({
-      //   method: "put",
-      //   url: "http://vuecourse.zent.edu.vn/api/cards/"+e.draggedContext.element.id+'/index',
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem('access_token')}`
-      //   },
-      //   data: {
-      //     index: e.draggedContext.futureIndex
-      //   }
-      // })
-      //   .then(() => {
-      //     this.getdirectories();
-      //   })
-      //   .catch((error) => {
-      //     console.log(error);
-      //   });
+      // console.log(e)
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/cards/"+e.draggedContext.element.id+"/directory",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        },
+        data: {
+          index: e.draggedContext.futureIndex,
+          directory_id: this.list.id
+        }
+      })
+        .then(() => {
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
     getdirectories() {
       axios({
@@ -201,9 +201,10 @@ export default {
         },
       })
         .then((response) => {
-          // console.log(response.data.data)
+          // console.log(response.data.data.index)
           this.setLists(response.data.data);
           this.cards = response.data.data[this.list.index].cards
+          // console.log(this.list)
         })
         .catch((error) => {
           console.log(error);

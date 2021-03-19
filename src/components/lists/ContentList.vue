@@ -28,9 +28,10 @@
       <div v-show="card.description" class="content-end-detail">
         <i class="el-icon-tickets"></i>
       </div>
-      <div class="content-end-detail"><i class="el-icon-files"></i>1</div>
-      <div class="content-end-detail">
-        <i class="el-icon-document-checked"></i>2/5
+      <div v-show="fileLists.length" class="content-end-detail"><i class="el-icon-files"></i>{{fileLists.length}}</div>
+      <div v-show="checkLists.length" class="content-end-detail">
+        <i class="el-icon-document-checked"></i>
+        <!-- 2/{{ checkLists.length }} -->
       </div>
     </div>
 
@@ -66,15 +67,15 @@
       </el-row>
       <el-row :gutter="15" class="dialog-container">
         <el-col :span="17">
-          <el-row>
+          <el-row v-show="labels.length">
             <el-col :span="2" style="font-size: 1px"> . </el-col>
             <el-col :span="22">
               <div class="tag-detail">
                 <p class="title-tag-detail">NHÃN</p>
                 <div class="tag-detail-tag">
                   <div
-                    v-for="(label, index) in labels"
-                    :key="index"
+                    v-for="(label) in labels"
+                    :key="label.id"
                     :style="{ background: label.color }"
                   >
                     {{ label.name }}
@@ -148,7 +149,7 @@
               </div>
             </el-col>
           </el-row>
-          <el-row class="magin-mission">
+          <el-row v-show="fileLists.length" class="magin-mission">
             <el-col :span="2" style="font-size: 24px"
               ><i class="el-icon-files"></i
             ></el-col>
@@ -156,13 +157,28 @@
               <div class="note-card">
                 <p class="title-tag-detail">TẬP TIN ĐÍNH KÈM</p>
                 <el-row :gutter="20">
-                  <el-col :span="12">
-                    <el-image
-                      src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
-                    ></el-image>
-                    <el-button type="text" @click="deleteFile"
+                  <el-col v-for="fileList in fileLists" :key="fileList.id" :span="12">
+                    <div>
+                      <el-image
+                        :src="'http://vuecourse.zent.edu.vn/storage/'+fileList.path"
+                      ></el-image>
+                      <el-input v-if="checkNameFile===fileList.id" @keyup.enter.native="editFile(fileList.id)" size="mini" placeholder="Nhập tên tệp..." v-model="dataNameFile"></el-input>
+                      <p v-else class="file-name">{{fileList.name}}</p>
+                    </div>
+                    <div class="button-file-edit">
+                      <el-button v-if="checkNameFile===fileList.id" type="text" @click="editFile(fileList.id)"
+                        >Lưu</el-button
+                      > 
+                      <el-button v-else type="text" @click="checkNameFile=fileList.id,dataNameFile=fileList.name"
+                      >Sửa</el-button
+                    > 
+                      <el-button v-if="checkNameFile===fileList.id" type="text" @click="checkNameFile='',dataNameFile=''"
+                        >Thoát</el-button
+                      > 
+                      <el-button v-else type="text" @click="deleteFile(fileList.id)"
                       >Loại bỏ</el-button
                     >
+                    </div>
                   </el-col>
                 </el-row>
               </div>
@@ -534,8 +550,16 @@
                 width="350"
                 trigger="click"
               >
-                <input type="file" style="margin-bottom: 10px" />
-                <el-button type="success">Thêm tệp</el-button>
+                <div class="file-input">
+                  <input @change="changeFile" type="file" id="file" class="file">
+                  <span v-if="fileData" @click="fileData = ''">
+                    Xóa tệp
+                  </span>
+                  <label v-else for="file">
+                    Chọn tệp
+                  </label>
+                </div>
+                <el-button type="success" @click="addFille">Thêm tệp</el-button>
                 <el-button class="button-detail-add-tag" slot="reference">
                   <i class="el-icon-files"></i>
                   Đính kèm
@@ -583,6 +607,7 @@ export default {
       labels: [],
       labelsLists: [],
       checkLists: [],
+      fileLists: [],
       dialogFormVisible: false,
       titleClickCheck: true,
       dataTitle: this.card.title,
@@ -598,6 +623,9 @@ export default {
       idLabel: 0,
       addNewCardDataEdit: "",
       radioColorEdit: "",
+      fileData: '',
+      checkNameFile: 0,
+      dataNameFile: ''
     };
   },
   methods: {
@@ -653,7 +681,7 @@ export default {
           console.log(error);
         });
     },
-    deleteFile() {
+    deleteFile(id) {
       this.$confirm("Bạn có chắc chắn muốn xóa?", "Thông báo", {
         confirmButtonText: "OK",
         cancelButtonText: "Hủy",
@@ -661,19 +689,20 @@ export default {
         center: true,
       })
         .then(() => {
-          // axios({
-          //   method: "delete",
-          //   url: "http://vuecourse.zent.edu.vn/api/directories/" + this.list.id,
-          //   headers: {
-          //     Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          //   },
-          // })
-          //   .then(() => {
-          //     this.getdirectories();
-          //   })
-          //   .catch((error) => {
-          //     console.log(error);
-          //   });
+          axios({
+            method: "delete",
+            url: "http://vuecourse.zent.edu.vn/api/files/" + id,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          })
+            .then(() => {
+              this.getCards();
+              this.getdirectories();
+            })
+            .catch((error) => {
+              console.log(error);
+            });
           this.$message({
             type: "success",
             message: "Xóa thành công",
@@ -951,6 +980,58 @@ export default {
       this.checkAddCard = false;
       this.checkAttachLabels = false;
     },
+    changeFile(e) {
+      if (e.target.files.length) {
+        this.fileData = e.target.files[0];
+      }
+    },
+    addFille() {
+      if (this.fileData) {
+        const formData = new FormData();
+          formData.append("file", this.fileData);
+
+          axios({
+            method: "post",
+            url: "http://vuecourse.zent.edu.vn/api/cards/" +this.card.id +"/upload-file",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+            data: formData,
+          }).then(() => {
+            this.fileData = '';
+            this.getCards();
+            this.getdirectories();
+          }).catch((error) => {
+            console.log(error);
+          });
+      } else {
+        this.$notify.error({
+          title: 'Lỗi tệp',
+          message: 'Tệp không được để trống .Xin kiểm tra lại'
+        });
+      }
+    },
+    editFile(id) {
+      axios({
+        method: "put",
+        url: "http://vuecourse.zent.edu.vn/api/files/"+id,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        data: {
+          name: this.dataNameFile
+        }
+      })
+        .then(() => {
+          this.checkNameFile = 0;
+          this.dataNameFile = '';
+          this.getCards();
+          this.getdirectories();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     getLabels() {
       axios({
         method: "get",
@@ -976,10 +1057,11 @@ export default {
         },
       })
         .then((response) => {
-          // console.log(response.data.data.check_lists)
+          // console.log(response.data.data.files)
           this.cardData = response.data.data;
           this.labels = response.data.data.labels;
           this.checkLists = response.data.data.check_lists;
+          this.fileLists = response.data.data.files;
         })
         .catch((error) => {
           console.log(error);
@@ -1172,5 +1254,59 @@ export default {
   border-radius: 5px;
   padding: 5px;
   font-size: 10px;
+}
+
+/* file */
+.file-input {
+  text-align: center;
+  margin-bottom: 15px;
+  margin-top: 5px;
+}
+.file {
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+  position: absolute;
+}
+
+.file-input span {
+  display: inline-block;
+  position: relative;
+  width: 200px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #f5f6f8;
+  box-shadow: 0 0 10px 5px #f5f6f8;
+  line-height: 50px;
+  color: rgb(245, 73, 73);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.file-input label {
+  display: inline-block;
+  position: relative;
+  width: 200px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: #f5f6f8;
+  box-shadow: 0 0 10px 5px #f5f6f8;
+  line-height: 50px;
+  color: grey;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.button-file-edit {
+  display: flex;
+  justify-content: space-between;
+}
+
+.file-name {
+  font-weight: bold;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>

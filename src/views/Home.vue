@@ -78,7 +78,6 @@ export default {
       this.setCheckClickAdd(true);
     },
     checkMove(e) {
-      console.log(e)
       axios({
         method: "put",
         url: "http://vuecourse.zent.edu.vn/api/directories/"+e.draggedContext.element.id+'/index',
