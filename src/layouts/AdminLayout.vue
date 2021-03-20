@@ -8,7 +8,11 @@
         <el-col :span="12" class="user">
           <div style="margin-left: auto">
             <el-dropdown trigger="click">
-              <el-avatar icon="el-icon-user-solid"></el-avatar>
+              <el-avatar
+                v-if="users.avatar"
+                :src="'http://vuecourse.zent.edu.vn/storage/users/'+users.avatar"
+              ></el-avatar>
+              <el-avatar v-else icon="el-icon-user-solid"></el-avatar>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click="user()" icon="el-icon-setting">
                   <el-button @click="user()" type="text">Cài đặt</el-button>
@@ -35,6 +39,7 @@ import axios from 'axios'
 export default {
   computed: {
       ...mapState('auth', ['isAuthenticated']),
+      ...mapState('user', ['users']),
     },
   methods: {
     ...mapMutations('auth', ['changeLoginStatus']),

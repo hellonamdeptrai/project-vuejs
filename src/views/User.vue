@@ -9,7 +9,8 @@
               :size="100"
               :src="'http://vuecourse.zent.edu.vn/storage/users/'+users.avatar"
             ></el-avatar>
-            <el-avatar v-else :size="100" :src="urlAvtar"></el-avatar>
+            <el-avatar v-else-if="urlAvtar" :size="100" :src="urlAvtar"></el-avatar>
+            <el-avatar v-else :size="100" :src="urlAvtar2"></el-avatar>
           </div>
           <div class="sub-title">{{ users.name }}</div>
         </div>
@@ -63,6 +64,7 @@ export default {
     return {
       fileData: "",
       urlAvtar: "",
+      urlAvtar2: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
       ruleForm: {
         name: "",
         email: "",

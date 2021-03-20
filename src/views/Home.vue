@@ -50,6 +50,7 @@ export default {
   },
   methods: {
     ...mapMutations("home", ["setCheckClickAdd",'setLists']),
+    ...mapMutations("user", ["setUser"]),
     clickAdd() {
       this.setCheckClickAdd(false)
     },
@@ -95,6 +96,21 @@ export default {
           console.log(error);
         });
     },
+    getUser() {
+      axios({
+        method: "get",
+        url: "http://vuecourse.zent.edu.vn/api/auth/me",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then((response) => {
+          this.setUser(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
     getdirectories() {
       axios({
         method: "get",
@@ -114,7 +130,7 @@ export default {
   },
   mounted() {
     this.getdirectories();
-    // console.log(this.myList)
+    this.getUser();
   }
 };
 </script>
