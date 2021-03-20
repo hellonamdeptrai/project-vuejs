@@ -203,6 +203,7 @@
                 trigger="click"
               >
                 <div v-if="checkAddCard">
+                  <el-input placeholder="Tìm nhãn..." v-model="sheachCards" style="margin-bottom: 10px;"></el-input>
                   <p class="title-tag-detail">NHÃN</p>
                   <div>
                     <el-row
@@ -625,8 +626,14 @@ export default {
       radioColorEdit: "",
       fileData: '',
       checkNameFile: 0,
-      dataNameFile: ''
+      dataNameFile: '',
+      sheachCards: ''
     };
+  },
+  watch: {
+    sheachCards: function() {
+      this.getLabels();
+    }
   },
   methods: {
     clickTitleNode() {
@@ -1035,7 +1042,7 @@ export default {
     getLabels() {
       axios({
         method: "get",
-        url: "http://vuecourse.zent.edu.vn/api/labels",
+        url: "http://vuecourse.zent.edu.vn/api/labels?q="+this.sheachCards,
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
