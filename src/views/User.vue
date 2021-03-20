@@ -4,19 +4,25 @@
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
         <div class="avatar">
           <div>
-            <el-avatar :size="100" :src="circleUrl"></el-avatar>
-            <div class="sub-title">Lò Tuấn Nam</div>
+            <el-avatar
+              v-if="users.avatar && !urlAvtar"
+              :size="100"
+              :src="'http://vuecourse.zent.edu.vn/storage/users/'+users.avatar"
+            ></el-avatar>
+            <el-avatar v-else :size="100" :src="urlAvtar"></el-avatar>
           </div>
+          <div class="sub-title">{{ users.name }}</div>
         </div>
         <div class="file-input">
-                  <input @change="changeFile" type="file" id="file" class="file">
-                  <span v-if="fileData" @click="fileData = ''">
-                    Xóa avatar vừa chọn
-                  </span>
-                  <label v-else for="file">
-                    Chọn avatar
-                  </label>
-                </div>
+          <input @change="changeFile" type="file" id="file" class="file" />
+          <span
+            v-if="fileData"
+            @click="(fileData = ''), (urlAvtar = '')"
+          >
+            Xóa avatar vừa chọn
+          </span>
+          <label v-else for="file"> Chọn avatar </label>
+        </div>
         <el-form-item prop="name" label="Họ tên">
           <el-input
             type="text"
@@ -49,17 +55,17 @@
 </template>
 
 <script>
+import axios from "axios";
+import { mapState, mapMutations } from "vuex";
+
 export default {
-  components: {
-    //
-  },
   data() {
     return {
-      fileData: '',
-      circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+      fileData: "",
+      urlAvtar: "",
       ruleForm: {
-        name: "Lò Tuấn Nam",
-        email: "nam@gmail.com",
+        name: "",
+        email: "",
       },
       rules: {
         name: [
@@ -89,20 +95,47 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapState("user", ["users"]),
+  },
   methods: {
+    ...mapMutations("user", ["setUser"]),
     changeFile(e) {
       if (e.target.files.length) {
-        this.fileData = e.target.files[0];
+        let targetfile = e.target.files[0];
+        this.fileData = targetfile;
+        this.urlAvtar = URL.createObjectURL(targetfile);
       }
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$message({
-            message: "Sửa thành công",
-            type: "success",
-          });
-          this.$router.push({ path: "/home" });
+          const formData = new FormData();
+          formData.append("name", this.ruleForm.name);
+          if (this.fileData) {
+            formData.append("avatar", this.fileData);
+          }
+          axios({
+            method: "post",
+            url: "http://vuecourse.zent.edu.vn/api/users",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+            data: formData,
+          })
+            .then(() => {
+              this.urlAvtar = '';
+              this.fileData = '';
+              this.getUser();
+              this.$message({
+                message: "Sửa thành công",
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+          // this.$router.push({ path: "/home" });
         } else {
           this.$message.error("Lỗi, vui lòng kiểm tra lại");
           return false;
@@ -115,6 +148,27 @@ export default {
     back() {
       this.$router.push({ path: "/home" });
     },
+    getUser() {
+      axios({
+        method: "get",
+        url: "http://vuecourse.zent.edu.vn/api/auth/me",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+        .then((response) => {
+          // console.log(response.data)
+          this.ruleForm.name = response.data.name;
+          this.ruleForm.email = response.data.email;
+          this.setUser(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+  },
+  mounted() {
+    this.getUser();
   },
 };
 </script>
@@ -144,9 +198,11 @@ export default {
     .el-form {
       .avatar {
         width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        text-align: center;
+        .sub-title {
+          font-weight: bold;
+          margin-top: 10px;
+        }
       }
       .file-input {
         text-align: center;
@@ -159,7 +215,7 @@ export default {
           position: absolute;
         }
         span {
-           display: inline-block;
+          display: inline-block;
           position: relative;
           width: 200px;
           height: 40px;

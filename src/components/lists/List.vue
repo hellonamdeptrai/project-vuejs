@@ -24,8 +24,8 @@
           </div>
         </div>
       </div>
-      <draggable :list="cards" :move="checkMoveCard" :animation="100" class="content" group="people">
-        <div class="content-body" v-for="(card) in cards" :key="card.index">
+      <draggable :list="cards" item-key="id" :move="checkMoveCard" :id="list.id" :animation="100" class="content" group="people">
+        <div class="content-body" v-for="(card) in cards" :key="card.id">
           <ContentList :card="card" :getdirectories="getdirectories"/>
         </div>
         <div class="add-new-list">
@@ -174,7 +174,7 @@ export default {
         });
     },
     checkMoveCard(e) {
-      // console.log(e)
+      // console.log(e.to.id)
       axios({
         method: "put",
         url: "http://vuecourse.zent.edu.vn/api/cards/"+e.draggedContext.element.id+"/directory",
@@ -183,10 +183,13 @@ export default {
         },
         data: {
           index: e.draggedContext.futureIndex,
-          directory_id: this.list.id
+          directory_id: e.to.id
         }
       })
         .then(() => {
+          // if (e.relatedContext.element.directory_id !== this.list.id) {
+          //   this.getdirectories();
+          // }
         })
         .catch((error) => {
           console.log(error);

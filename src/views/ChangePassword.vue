@@ -39,10 +39,10 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+import axios from "axios";
+
 export default {
-  components: {
-    //
-  },
   data() {
     return {
       ruleForm: {
@@ -90,15 +90,56 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapState("user", ["users"]),
+  },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$message({
-            message: "Sửa thành công",
-            type: "success",
-          });
-          this.$router.push({ path: "/home" });
+          axios({
+            method: "post",
+            url: "http://vuecourse.zent.edu.vn/api/auth/login",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+            data: {
+              email: this.users.email,
+              password: this.ruleForm.oldpassword,
+            },
+          })
+            .then(() => {
+              axios({
+                method: "put",
+                url: "http://vuecourse.zent.edu.vn/api/users/password",
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                },
+                data: {
+                  password: this.ruleForm.password,
+                  password_confirmation: this.ruleForm.confirmPassword,
+                },
+              })
+                .then(() => {
+                  this.$message({
+                    message: "Cập nhật mật khẩu mới thành công!",
+                    type: "success",
+                  });
+                  this.$router.push({ path: "/home" });
+                })
+                .catch(() => {
+                  this.$message({
+                    message: "Xác nhận mật khẩu không khớp!",
+                    type: "error",
+                  });
+                });
+            })
+            .catch(() => {
+              this.$message({
+                message: "Mật khẩu cũ không đúng!",
+                type: "error",
+              });
+            });
         } else {
           this.$message.error("Lỗi, vui lòng kiểm tra lại");
           return false;

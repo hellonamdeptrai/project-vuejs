@@ -3,7 +3,7 @@
     <el-header style="height: auto">
       <el-row>
         <el-col :span="12" class="logo">
-          <img src="../assets/images/LogoMakr-2rdE5H.png" alt="" />
+          <img @click="$router.push({ path: '/home' })" src="../assets/images/LogoMakr-2rdE5H.png" alt="" style="cursor: pointer;"/>
         </el-col>
         <el-col :span="12" class="user">
           <div style="margin-left: auto">

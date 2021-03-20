@@ -123,7 +123,7 @@ export default {
 .home {
   user-select: none;
   white-space: nowrap;
-  margin: 0 8px;
+  padding: 0 8px;
   margin-top: 15px;
   margin-bottom: 10px;
   overflow-x: auto;

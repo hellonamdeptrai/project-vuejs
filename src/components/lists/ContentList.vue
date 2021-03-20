@@ -258,92 +258,92 @@
                     <div class="add-new-card-color">
                       <p class="add-new-card-title">Chọn một màu</p>
                       <div class="add-new-card-color-box">
-                        <div style="background-color: green">
+                        <div style="background-color: #61bd4f">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="green"
+                            value="#61bd4f"
                           />
                         </div>
-                        <div style="background-color: yellow">
+                        <div style="background-color: #f2d600">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="yellow"
+                            value="#f2d600"
                           />
                         </div>
-                        <div style="background-color: orange">
+                        <div style="background-color: #ff9f1a">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="orange"
+                            value="#ff9f1a"
                           />
                         </div>
-                        <div style="background-color: red">
+                        <div style="background-color: #eb5a46">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="red"
+                            value="#eb5a46"
                           />
                         </div>
-                        <div style="background-color: purple">
+                        <div style="background-color: #c377e0">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="purple"
+                            value="#c377e0"
                           />
                         </div>
-                        <div style="background-color: blue">
+                        <div style="background-color: #0079bf">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="blue"
+                            value="#0079bf"
                           />
                         </div>
-                        <div style="background-color: aquamarine">
+                        <div style="background-color: #00c2e0">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="aquamarine"
+                            value="#00c2e0"
                           />
                         </div>
-                        <div style="background-color: lime">
+                        <div style="background-color: #51e898">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="lime"
+                            value="#51e898"
                           />
                         </div>
-                        <div style="background-color: pink">
+                        <div style="background-color: #ff78cb">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="pink"
+                            value="#ff78cb"
                           />
                         </div>
-                        <div style="background-color: black">
+                        <div style="background-color: #344563">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="black"
+                            value="#344563"
                           />
                         </div>
-                        <div style="background-color: gray">
+                        <div style="background-color: #b3bac5">
                           <input
                             v-model="radioColor"
                             type="radio"
                             name="gender"
-                            value="gray"
+                            value="#b3bac5"
                           />
                         </div>
                       </div>
@@ -371,92 +371,92 @@
                     <div class="add-new-card-color">
                       <p class="add-new-card-title">Chọn một màu</p>
                       <div class="add-new-card-color-box">
-                        <div style="background-color: green">
+                        <div style="background-color: #61bd4f">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="green"
+                            value="#61bd4f"
                           />
                         </div>
-                        <div style="background-color: yellow">
+                        <div style="background-color: #f2d600">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="yellow"
+                            value="#f2d600"
                           />
                         </div>
-                        <div style="background-color: orange">
+                        <div style="background-color: #ff9f1a">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="orange"
+                            value="#ff9f1a"
                           />
                         </div>
-                        <div style="background-color: red">
+                        <div style="background-color: #eb5a46">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="red"
+                            value="#eb5a46"
                           />
                         </div>
-                        <div style="background-color: purple">
+                        <div style="background-color: #c377e0">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="purple"
+                            value="#c377e0"
                           />
                         </div>
-                        <div style="background-color: blue">
+                        <div style="background-color: #0079bf">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="blue"
+                            value="#0079bf"
                           />
                         </div>
-                        <div style="background-color: aquamarine">
+                        <div style="background-color: #00c2e0">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="aquamarine"
+                            value="#00c2e0"
                           />
                         </div>
-                        <div style="background-color: lime">
+                        <div style="background-color: #51e898">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="lime"
+                            value="#51e898"
                           />
                         </div>
-                        <div style="background-color: pink">
+                        <div style="background-color: #ff78cb">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="pink"
+                            value="#ff78cb"
                           />
                         </div>
-                        <div style="background-color: black">
+                        <div style="background-color: #344563">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="black"
+                            value="#344563"
                           />
                         </div>
-                        <div style="background-color: gray">
+                        <div style="background-color: #b3bac5">
                           <input
                             v-model="radioColorEdit"
                             type="radio"
                             name="gender"
-                            value="gray"
+                            value="#b3bac5"
                           />
                         </div>
                       </div>
@@ -616,7 +616,7 @@ export default {
       colorCard: "pink",
       checkAddCard: true,
       addNewCardData: "",
-      radioColor: "green",
+      radioColor: "#61bd4f",
       addNewCheckListData: "Việc cần làm",
       dateValue: "",
       checkAttachLabels: true,
@@ -634,7 +634,7 @@ export default {
     },
     outTitleNode() {
       let dataDescription = "";
-      if (!this.dataTitleCard) {
+      if (this.dataTitleCard) {
         dataDescription = this.dataTitleCard;
       }
       axios({
@@ -771,7 +771,7 @@ export default {
       })
         .then(() => {
           this.addNewCardData = "";
-          this.radioColor = "green";
+          this.radioColor = "#61bd4f";
           this.getCards();
           this.getdirectories();
           this.getLabels();
